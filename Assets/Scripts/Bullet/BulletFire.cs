@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 /// <summary>
 /// 弾の処理タイプ
@@ -77,21 +78,29 @@ public class BulletFire : MonoBehaviour
     {
         if (!canShoot)
         {
-            SoundManager.Instance.PlayEmptyBullet();
+            //SoundManager.Instance.PlayEmptyBullet();
             return;
         }
-        SoundManager.Instance.StopSE();
+        //SoundManager.Instance.StopSE();
 
         //銃弾を生成
         if (stanceValue >= equip.ConsumeStanceValue)
         {
             BulletLaserController laser;
             PlayerBulletController bullet;
-            var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Camera.main.transform.rotation);
+            var target = GameObject.FindGameObjectsWithTag("Enemy")
+                .Single(c => c.GetComponent<HitPosRetention>());
+            var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);//Camera.main.transform.rotation);
+            var targetpos = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
+                instance.transform.LookAt(targetpos);
             switch (equip.BulletType)
             {
                 case BulletType.Lay:
-                    if (instance.TryGetComponent(out laser)) laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
+                    if (instance.TryGetComponent(out laser))
+                    {
+                        laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
+                        laser.Target = target;
+                    }
                     break;
                 case BulletType.Physics:
                     if (instance.TryGetComponent(out bullet)) bullet.Damage = Mathf.CeilToInt(bulletDamage.Value);
@@ -105,12 +114,12 @@ public class BulletFire : MonoBehaviour
                 default:
                     break;
             }
-            if (equip.PassiveSkill.Type == CustomSkill.SkillType.Buf) instance.GetComponent<ICustomSkillEvent>().CustomSkillEvent += (x) => equip.PassiveSkill.CustomSkillAction.Execute(x);
-            SoundManager.Instance.PlayShoot();
+            if (equip.passiveSkill != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Buf) instance.GetComponent<ICustomSkillEvent>().CustomSkillEvent += (x) => equip.PassiveSkill.CustomSkillAction.Execute(x);
+            //SoundManager.Instance.PlayShoot();
             stanceValue -= bulletEnergy.Value;
             m_stance.fillAmount = stanceValue;
         }
-        else SoundManager.Instance.PlayEmptyBullet();
+        //else SoundManager.Instance.PlayEmptyBullet();
         //パッシブ用のコストがある場合パッシブを発動
         StartCoroutine(CoolDown());
     }
@@ -136,7 +145,7 @@ public class BulletFire : MonoBehaviour
         cooldownTime = new BufferParameter(equip.Delay);
         bulletDamage = new BufferParameter(equip.Damage);
         bulletEnergy = new BufferParameter(equip.ConsumeStanceValue);
-        if(equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute();
+        if(equip.PassiveSkill && equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute();
         m_bullet._NameDisplay.text = bullet.Name;
         m_bullet._skillDisplay.sprite = bullet.passiveSkill ? bullet.passiveSkill.ImageBullet : null;
 

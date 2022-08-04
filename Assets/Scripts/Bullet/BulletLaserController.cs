@@ -41,6 +41,10 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
 
     public int Damage { set { damage = value; } }
 
+    public GameObject Target { set => target = value; }
+
+    GameObject target;
+
     /// <summary>弾着弾時に発生する処理 </summary>
     public Action<GameObject> CustomSkillEvent { get=> _customSkillEvent; set=> _customSkillEvent = value; }
 
@@ -68,7 +72,7 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
     }
     void Update()
     {
-        ray = Camera.main.ScreenPointToRay(_crosshairUi.position);
+        ray = Camera.main.ScreenPointToRay(target.transform.position);
         if(!EndHit)RayHit(ray, ref hitObject);
     }
 
@@ -87,6 +91,7 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
         {
             hitPosition = hit.point;    // Ray が当たった場所
             hitObject = hit.collider.gameObject;    // Ray が洗ったオブジェクト
+            Debug.Log(hitObject);
 
             if (!hitObject) hit = default;
             PlayHitSound(hitPosition);  // レーザーが当たった場所でヒット音を鳴らす
@@ -98,7 +103,7 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
             if (_frostEffect)
             {
                 Instantiate(_frostEffect, hitPosition, Quaternion.identity, hitObject.transform);
-                SoundManager.Instance.PlayFrost();
+                //SoundManager.Instance.PlayFrost();
             }
             Destroy(this.gameObject, delayTimeUntilDestroy);
         }

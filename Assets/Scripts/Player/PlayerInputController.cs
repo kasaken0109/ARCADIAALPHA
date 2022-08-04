@@ -62,19 +62,6 @@ public class PlayerInputController : MonoBehaviour
         dir = new Vector3(direction.x, 0, direction.y);
         _playerMove.Move(dir);
     }
-
-    private void OnMove(InputAction.CallbackContext obj)
-    {
-        var direction = obj.ReadValue<Vector2>();
-        var dir = new Vector3(direction.x, 0, direction.y);
-        _playerMove.Move(dir);
-    }
-
-    private void OnMoveCanceled(InputAction.CallbackContext obj)
-    {
-        _playerMove.Move(Vector3.zero);
-    }
-
     private void OnJump(InputAction.CallbackContext obj)
     {
         _playerMove.Jump();
