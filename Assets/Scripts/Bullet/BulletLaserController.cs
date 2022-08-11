@@ -72,8 +72,9 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
     }
     void Update()
     {
-        ray = Camera.main.ScreenPointToRay(target.transform.position);
-        if(!EndHit)RayHit(ray, ref hitObject);
+        ray = new Ray(transform.position, target.transform.position - transform.position);//Camera.main.ScreenPointToRay(target.transform.position);
+        Debug.DrawRay(transform.position, target.transform.position - transform.position, Color.red);
+        if (!EndHit)RayHit(ray, ref hitObject);
     }
 
     /// <summary>
