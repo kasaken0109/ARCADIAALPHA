@@ -12,13 +12,27 @@ public class AttackSetController : MonoBehaviour
     [SerializeField]
     [Tooltip("攻撃のコライダーコントローラー")]
     AttackcolliderController[] _attackCollider;
+    [SerializeField]
+    Animator _anim = default;
+
+    StateController[] _stateController;
 
     /// <summary>攻撃用のコルーチン</summary>
     Coroutine[] attackColliderCoroutine;
 
+    PlayerMoveController _playerMove;
+
+
     void Start()
     {
         attackColliderCoroutine = new Coroutine[_activeCollider.Length];
+        _stateController = _anim.GetBehaviours<StateController>();
+        TryGetComponent(out _playerMove);
+        foreach (var item in _stateController)
+        {
+            item.SetStateEnterAction(() =>_playerMove.SetMoveActive(false));
+            item.SetStateExitAction(() => _playerMove.SetMoveActive(true));
+        }
     }
 
     /// <summary>
