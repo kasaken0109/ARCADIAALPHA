@@ -5,9 +5,25 @@ using UnityEngine;
 
 public class StateController : StateMachineBehaviour
 {
+    public bool CanMove;
     Action OnEnterListener;
     Action OnUpdateListener;
     Action OnExitListener;
+
+    public void SetStateEnterAction(Action action)
+    {
+        OnEnterListener += action;
+    }
+
+    public void SetStateUpdateAction(Action action)
+    {
+        OnUpdateListener += action;
+    }
+
+    public void SetStateExitAction(Action action)
+    {
+        OnExitListener += action;
+    }
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         base.OnStateEnter(animator,stateInfo,layerIndex);
