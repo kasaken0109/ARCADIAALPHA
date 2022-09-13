@@ -6,6 +6,8 @@ public class PlayerAnimationEventController : MonoBehaviour
 {
     [SerializeField]
     GameObject[] _footEffects;
+    [SerializeField]
+    GameObject _footEffectPrefab;
     Rigidbody _rb;
     // Start is called before the first frame update
     void Start()
@@ -15,6 +17,6 @@ public class PlayerAnimationEventController : MonoBehaviour
 
     public void ActiveFootEffect(int value)
     {
-        _footEffects[value].SetActive(true);
+        Instantiate(_footEffectPrefab, _footEffects[value].transform.position, GameManager.Player.transform.rotation);
     }
 }
