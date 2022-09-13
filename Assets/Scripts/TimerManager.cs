@@ -33,7 +33,7 @@ public class TimerManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        TimerSetUp();
+        //TimerSetUp();
     }
 
     /// <summary>
@@ -54,6 +54,7 @@ public class TimerManager : MonoBehaviour
     /// <returns></returns>
     public IEnumerator TimeUpdate()
     {
+        TimerSetUp();
         m_timeText.text = "制限時間：" + time;
         while (time > 0)
         {
