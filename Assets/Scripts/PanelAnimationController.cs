@@ -3,39 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class PanelAnimationController : MonoBehaviour
+public sealed class PanelAnimationController : UIAnimationController
 {
     [SerializeField]
-    Transform _targetPos;
+    RectTransform _targetPos;
+    [SerializeField]
+    RectTransform _stopPos;
 
     Vector3 originScale;
     Vector3 originPosition;
-    // Start is called before the first frame update
+    RectTransform rectTransform;
+    bool IsReachDestination = false;
+    bool IsHold = false;
+    Tweener start = null;
+    Tweener end = null;
     void Start()
     {
-        originScale = transform.localScale;
-        originPosition = transform.position;
+        TryGetComponent(out rectTransform);
+        originPosition = _stopPos.position;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void FadePanel()
     {
-        transform.DOMove(_targetPos.position, 1).OnComplete(() => gameObject.SetActive(false));
+        transform.DOMove(_targetPos.position, 1);
     }
 
-    private void OnEnable()
+    public void DisplayPanelButtonHold()
     {
-        transform.DOScale(1, 1);
+        IsHold = true;
+        end.Kill();
+        //Debug.Log($"{IsReachDestination},{IsHold}");
+        if(!IsReachDestination && IsHold)
+        {
+            start = rectTransform.DOMove(originPosition, 0.5f).OnComplete(() => IsReachDestination = true);
+            start.Play();
+        }
     }
 
-    private void OnDisable()
+    public void HidePanal()
     {
-        transform.localScale = originScale;
-        transform.position = originPosition;
+        IsHold = false;
+        start.Kill();
+        IsReachDestination = false;
+        end = rectTransform.DOMove(_targetPos.position, 0.5f);
+        end.Play();
+    }
+
+    public void ButtonHold()
+    {
+        IsHold = true;
+    }
+
+    public override void Active()
+    {
+        base.Active();
+    }
+
+    public override void NonActive()
+    {
+        FadePanel();
     }
 }
