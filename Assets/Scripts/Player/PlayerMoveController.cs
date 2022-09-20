@@ -12,7 +12,7 @@ using UnityEngine.Rendering.Universal;
 //プレイヤーの動きを制御する
 public class PlayerMoveController : ColliderGenerater
 {
-    public static PlayerMoveController Instance { get; private set; }
+    public static new PlayerMoveController Instance { get; private set; }
 
     [SerializeField]
     [Tooltip("プレイヤーの値の設定")]
@@ -25,10 +25,6 @@ public class PlayerMoveController : ColliderGenerater
     [SerializeField]
     [Tooltip("スピードアップエフェクト")]
     GameObject m_speedup = null;
-
-    [SerializeField]
-    [Tooltip("ラッシュエフェクト")]
-    GameObject m_rush = null;
 
     [SerializeField]
     [Tooltip("当たるレイヤー")]
@@ -53,15 +49,8 @@ public class PlayerMoveController : ColliderGenerater
     const float floatUpDuraration = 0.5f;
     Animator _anim = null;
     Rigidbody _rb;
-    Vector3 dir;
     Vector3 velo;
     Vector3 latestPos;
-    PlayerMoveSettings m_current;
-
-    /// <summary>照準</summary>
-    RectTransform m_crosshairUi = null;
-    Ray ray;
-    RaycastHit hit;
 
     bool m_isMoveActive = true;
 
@@ -91,8 +80,6 @@ public class PlayerMoveController : ColliderGenerater
     static readonly int IsAttackEndHash = Animator.StringToHash("IsAttackEnd");
     #endregion
 
-    Coroutine current;
-
     private void Awake()
     {
         Instance = this;
@@ -110,7 +97,7 @@ public class PlayerMoveController : ColliderGenerater
 
     void Update()
     {
-        MoveAction();
+        //MoveAction();
         IsGrounded();
         SetStance();
         _anim.speed = _attackSpeed.Value;
@@ -119,6 +106,7 @@ public class PlayerMoveController : ColliderGenerater
     public void Move(Vector3 dir)
     {
         if (IsDodgeing) return;
+        if (!IsGrounded()) return;
         if (!m_isMoveActive) dir = Vector3.zero;
         dir = Camera.main.transform.TransformDirection(dir);    // メインカメラを基準に入力方向のベクトルを変換する
         dir.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
@@ -165,17 +153,55 @@ public class PlayerMoveController : ColliderGenerater
             _rb.velocity = new Vector3(_rb.velocity.x, veloY, _rb.velocity.z);
         }
     }
+    bool CanJump = true;
+
+    float coolTime = 0.5f;
+
+    Coroutine jump = null;
     /// <summary>
     /// ジャンプの挙動を制御する
     /// </summary>
     public void Jump()
     {
-        if (!IsGrounded()) return;
+        if (!IsGrounded() || jump != null) return;
+        if (!CanJump)
+        {
+            jump = StartCoroutine(CooldownSkill());
+            return;
+        }
         _anim.SetTrigger(JumpHash);
-        _rb.useGravity = false;
         _rb.DOMoveY(_jumpPower.Value, 0.2f);
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
-        _rb.useGravity = true;
+        CanJump = false;
+    }
+
+    bool IsSetGravity = true;
+    public void SetGravity()
+    {
+        IsSetGravity = false;
+    }
+    public void RemoveGravity()
+    {
+        IsSetGravity = true;
+        StartCoroutine(Set());
+    }
+
+    float time;
+    IEnumerator Set()
+    {
+        while (time < 1f)
+        {
+            _rb.velocity = new Vector3(_rb.velocity.x, -0.1f, _rb.velocity.z);
+            time += Time.deltaTime;
+            yield return null; 
+        }
+    }
+
+    IEnumerator CooldownSkill()
+    {
+        yield return new WaitForSeconds(coolTime);
+        CanJump = true;
+        jump = null;
     }
 
     /// <summary>
@@ -264,8 +290,8 @@ public class PlayerMoveController : ColliderGenerater
     public void Running(Vector3 dir)
     {
         //入力に応じてスピード、アニメーションを変更する
-        velo = dir.normalized * (IsRunning ? m_settings.RunningCorrection : 1f) * _moveSpeed.Value;
-        _anim.SetFloat(SpeedHash, (dir == Vector3.zero ? 0 : IsRunning ? m_settings.RunningCorrection * _moveSpeed.Value : _moveSpeed.Value));
+        velo = dir.normalized * _moveSpeed.Value;
+        _anim.SetFloat(SpeedHash, (dir == Vector3.zero ? 0 : _moveSpeed.Value));
     }
 
     /// <summary>
