@@ -3,54 +3,106 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+/// <summary>
+/// ƒpƒlƒ‹‚ÌˆÚ“®ˆ—‚ğs‚¤
+/// </summary>
 public sealed class PanelAnimationController : UIAnimationController
 {
     [SerializeField]
-    RectTransform _targetPos;
-    [SerializeField]
-    RectTransform _stopPos;
-
-    Vector3 originScale;
-    Vector3 originPosition;
-    RectTransform rectTransform;
-    bool IsReachDestination = false;
-    bool IsHold = false;
-    Tweener start = null;
-    Tweener end = null;
+    float _animSpeed = 30f;
+    Vector2 originPosition;
+    RectTransform _rectTransform;
+    bool isReachDestination = false;
+    bool isHold = false;
+    bool isDisplayChange = false;
+    Coroutine startC = null;
+    Coroutine endC = null;
+    const float threshold = 10f;
+    const float displayAnchor = -2797.4f;
+    const float leftAnchor = -2191.22f;
+    const float rightAnchor = -363.9f;
     void Start()
     {
-        TryGetComponent(out rectTransform);
-        originPosition = _stopPos.position;
+        TryGetComponent(out _rectTransform);
+        originPosition = _rectTransform.offsetMin;
     }
     public void FadePanel()
     {
-        transform.DOMove(_targetPos.position, 1);
+        IEnumerator MovePos()
+        {
+            while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
+            {
+                _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
+                yield return null;
+            }
+        }
+        StartCoroutine(MovePos());
+    }
+
+    public void BackPanel()
+    {
+        IEnumerator MovePos()
+        {
+            while (Mathf.Abs(_rectTransform.offsetMin.x - displayAnchor) >= threshold)
+            {
+                _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x - _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
+                yield return null;
+            }
+        }
+        StartCoroutine(MovePos());
     }
 
     public void DisplayPanelButtonHold()
     {
-        IsHold = true;
-        end.Kill();
-        //Debug.Log($"{IsReachDestination},{IsHold}");
-        if(!IsReachDestination && IsHold)
+        isHold = true;
+        StopCoroutine(MovePosMinos());
+        endC = null;
+        if(!isReachDestination && isHold && isDisplayChange)
         {
-            start = rectTransform.DOMove(originPosition, 0.5f).OnComplete(() => IsReachDestination = true);
-            start.Play();
+            startC = StartCoroutine(MovePos());
         }
     }
 
     public void HidePanal()
     {
-        IsHold = false;
-        start.Kill();
-        IsReachDestination = false;
-        end = rectTransform.DOMove(_targetPos.position, 0.5f);
-        end.Play();
+        if (!isDisplayChange) return;
+           isHold = false;
+        StopCoroutine(MovePos());
+        startC = null;
+        isReachDestination = false;
+        endC = StartCoroutine(MovePosMinos());
+    }
+
+    IEnumerator MovePos()
+    {
+        while (Mathf.Abs(_rectTransform.offsetMin.x - leftAnchor) >= threshold)
+        {
+            if (!isHold) yield break;
+            _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x - _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
+            yield return null;
+        }
+        isReachDestination = true;
+
+    }
+
+    IEnumerator MovePosMinos()
+    {
+        while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
+        {
+            if (isHold) yield break;
+            _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);//_rectTransform.offsetMin.x > rightAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
+            yield return null;
+        }
+    }
+
+    public void SetEnableDisplayChange(bool isActive)
+    {
+        isDisplayChange = isActive;
     }
 
     public void ButtonHold()
     {
-        IsHold = true;
+        isHold = true;
     }
 
     public override void Active()
