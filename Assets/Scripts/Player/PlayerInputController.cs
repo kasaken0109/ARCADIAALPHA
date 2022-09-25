@@ -32,13 +32,11 @@ public class PlayerInputController : MonoBehaviour
         _playerInput.actions["Dodge"].started += OnDodge;
         _playerInput.actions["OpenUI"].started += OnSelect;
         _playerInput.actions["BulletSelect"].started += OnBulletSelect;
-        _playerInput.actions["Run"].performed += OnRun;
-        _playerInput.actions["Run"].canceled += OnRunCanceled;
         _playerInput.actions["Attack"].started += OnAttack;
 
 
         _playerInput.actions["Option"].started += OnMenu;
-        _playerInput.actions["LockOn"].performed += OnLockOn;
+        //_playerInput.actions["LockOn"].performed += OnLockOn;
        // NewTest a = new NewTest();
         //a.Player.Move.performed += contexet => _playerControll.Move(Vector3.zero); 
     }
@@ -50,11 +48,9 @@ public class PlayerInputController : MonoBehaviour
         _playerInput.actions["Dodge"].started -= OnDodge;
         _playerInput.actions["OpenUI"].started -= OnSelect;
         _playerInput.actions["BulletSelect"].started += OnBulletSelect;
-        _playerInput.actions["Run"].performed -= OnRun;
-        _playerInput.actions["Run"].canceled -= OnRunCanceled;
         _playerInput.actions["Attack"].started -= OnAttack;
         _playerInput.actions["Option"].started -= OnMenu;
-        _playerInput.actions["LockOn"].performed -= OnLockOn;
+        //_playerInput.actions["LockOn"].performed -= OnLockOn;
     }
     private void FixedUpdate()
     {
@@ -85,16 +81,6 @@ public class PlayerInputController : MonoBehaviour
     private void OnBulletSelect(InputAction.CallbackContext obj)
     {
         _bulletSelectController.SelectBullet(obj.ReadValue<float>());
-    }
-
-    private void OnRun(InputAction.CallbackContext obj)
-    {
-        _playerMove.SetRunning(true);
-    }
-
-    private void OnRunCanceled(InputAction.CallbackContext obj)
-    {
-        _playerMove.SetRunning(false);
     }
     private void OnAttack(InputAction.CallbackContext obj)
     {
