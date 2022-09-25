@@ -19,10 +19,7 @@ public class EquipmentPresenter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        for (int i = 0; i < _equipmentInformations.Length; i++)
-        {
-            SetInformation(i);
-        }
+        //SetInformations();
     }
     public void SetInformation(int id)
     {
@@ -31,5 +28,13 @@ public class EquipmentPresenter : MonoBehaviour
         _equipmentInformations[id].BulletName.text = instance ? instance.Name : _defaultText;
         _equipmentInformations[id].SkillName.text = instance ? instance.passiveSkill ? instance.PassiveSkill.SkillName : _defaultText : _defaultText;
         _equipmentInformations[id].SkillImage.sprite = instance ? instance.passiveSkill ? instance.PassiveSkill.ImageBullet : _defaultImage : _defaultImage;
+    }
+
+    public void SetInformations()
+    {
+        for (int i = 0; i < _equipmentInformations.Length; i++)
+        {
+            SetInformation(i);
+        }
     }
 }
