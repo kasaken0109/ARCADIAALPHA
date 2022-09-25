@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 using System.Linq;
 
 /// <summary>
@@ -36,6 +37,13 @@ public class BulletFire : MonoBehaviour
     Image m_line = default;
 
     [SerializeField]
+    [Tooltip("クールダウン表示用UI")]
+    Image _cooldownUI = default;
+
+    [SerializeField]
+    GameObject _cooldownInformation;
+
+    [SerializeField]
     [Tooltip("弾の情報を表示するUI")]
     BulletInformation m_bullet;
 
@@ -59,6 +67,8 @@ public class BulletFire : MonoBehaviour
     void Start()
     {
         m_stance.fillAmount = 0.5f;
+        _cooldownUI.fillAmount = 0;
+        _cooldownInformation.SetActive(false);
         call = gameObject;
     }
 
@@ -131,8 +141,22 @@ public class BulletFire : MonoBehaviour
     IEnumerator CoolDown()
     {
         canShoot = false;
-        yield return new WaitForSeconds(cooldownTime.Value);
-        canShoot = true;
+        _cooldownInformation.SetActive(true);
+        _cooldownUI.fillAmount = 1;
+        yield return null;// new WaitForSeconds(cooldownTime.Value);
+        DOTween.To(
+                    () => _cooldownUI.fillAmount,
+                    (x) => _cooldownUI.fillAmount = x,
+                    0,
+                    cooldownTime.Value
+
+                    )
+                .OnComplete(() =>
+                {
+                    _cooldownInformation.SetActive(false);
+                    canShoot = true;
+                });
+        
     }
 
     /// <summary>
