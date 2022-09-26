@@ -55,9 +55,16 @@ public class ResultDisplay : MonoBehaviour
     {
         //保存されている値を取得
         clearTime = PlayerPrefs.GetInt("TimeScore");
-        maxTime = PlayerPrefs.GetInt("MaxTime");
+        //maxTime = PlayerPrefs.GetInt("MaxTime");
+        var calc = Mathf.CeilToInt((float)clearTime / 15f);
         //ランク計算
-        clearRank = (clearTime * calcValue) / maxTime;
+        clearRank = clearTime < 0 ? 6
+                    : calc <= 1 ? 0
+                    : calc <= 2 ? 1
+                    : calc <= 4 ? 2
+                    : calc <= 8 ? 3
+                    : calc <= 16 ? 4
+                    : 5;//(clearTime * calcValue) / maxTime;
         switch (clearRank)
         {
             case 0:
@@ -78,7 +85,7 @@ public class ResultDisplay : MonoBehaviour
             case 5:
                 rank = "D";
                 break;
-            default:
+            case 6:
                 rank = "Failed...";
                 break;
         }
@@ -99,7 +106,7 @@ public class ResultDisplay : MonoBehaviour
             yield return deltaTime;
         }
         //ランク表示
-        m_time.text = clearTime.ToString();
+        m_time.text = clearTime < 0 ? "----" : clearTime.ToString();
         yield return delayDisplay;
         m_rank.text = rank;
         //シーン遷移用ボタン表示
