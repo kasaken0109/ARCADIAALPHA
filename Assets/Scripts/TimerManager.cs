@@ -78,6 +78,25 @@ public class TimerManager : MonoBehaviour
     }
 
     /// <summary>
+    /// タイマーのカウントダウンを進める
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator TimeUpdateCountUp()
+    {
+        time = 0;
+        while (true)
+        {
+            if (isPlaying)
+            {
+                time++;
+                yield return new WaitForSeconds(1);
+            }
+
+            yield return null;
+        }
+    }
+
+    /// <summary>
     /// クエストの結果を保存
     /// </summary>
     public void SaveTime()
@@ -85,13 +104,13 @@ public class TimerManager : MonoBehaviour
         if (GameManager.Instance.GameStatus == GameState.PLAYERWIN)
         {
             //経過時間を計算
-            PlayerPrefs.SetInt("TimeScore", _timeLimit - time);
+            PlayerPrefs.SetInt("TimeScore", time);//_timeLimit - time);
             PlayerPrefs.Save();
             isPlaying = false;
         }
         else if (GameManager.Instance.GameStatus == GameState.PLAYERLOSE)
         {
-            PlayerPrefs.SetInt("TimeScore", _timeLimit);
+            PlayerPrefs.SetInt("TimeScore", -1);// _timeLimit);
             PlayerPrefs.Save();
         }
     }
