@@ -17,10 +17,10 @@ public sealed class PanelAnimationController : UIAnimationController
     bool isDisplayChange = false;
     Coroutine startC = null;
     Coroutine endC = null;
-    const float threshold = 10f;
+    const float threshold = 30f;
     const float displayAnchor = -2797.4f;
-    const float leftAnchor = -2191.22f;
-    const float rightAnchor = -363.9f;
+    const float leftAnchor = -2102.6f;
+    const float rightAnchor = -259.67f;
     void Start()
     {
         TryGetComponent(out _rectTransform);
@@ -32,6 +32,7 @@ public sealed class PanelAnimationController : UIAnimationController
         {
             while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
             {
+                Debug.Log(Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor));
                 _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
                 yield return null;
             }
