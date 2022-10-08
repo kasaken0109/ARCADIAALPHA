@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 攻撃用のオブジェクトの処理を行う
@@ -6,16 +8,15 @@
 public class AttackSetController : MonoBehaviour
 {
     [SerializeField]
-    [Tooltip("有効にする攻撃のコライダー")]
-    GameObject[] _activeCollider;
+    List<AttackcolliderController> _attackCollider = new List<AttackcolliderController>();
 
-    [SerializeField]
-    [Tooltip("攻撃のコライダーコントローラー")]
-    AttackcolliderController[] _attackCollider;
+    [HideInInspector]
+    public List<AttackcolliderController> AttackCollider;
     [SerializeField]
     Animator _anim = default;
 
     StateController[] _stateController;
+    JumpAttackStateController[] _jumpAttackStates;
 
     /// <summary>攻撃用のコルーチン</summary>
     Coroutine[] attackColliderCoroutine;
@@ -25,13 +26,29 @@ public class AttackSetController : MonoBehaviour
 
     void Start()
     {
-        attackColliderCoroutine = new Coroutine[_activeCollider.Length];
+        foreach (var item in _attackCollider)
+        {
+            AttackCollider.Add(item);
+        }
+        attackColliderCoroutine = new Coroutine[AttackCollider.Count];
         _stateController = _anim.GetBehaviours<StateController>();
+        _jumpAttackStates = _anim.GetBehaviours<JumpAttackStateController>();
         TryGetComponent(out _playerMove);
         foreach (var item in _stateController)
         {
             item.SetStateEnterAction(() =>_playerMove.SetMoveActive(false));
             item.SetStateExitAction(() => _playerMove.SetMoveActive(true));
+        }
+        foreach (var item in _jumpAttackStates)
+        {
+            item.SetStateEnterAction(() => {
+                _playerMove.StartFloat();
+                _anim.SetBool("IsAttackEnd", false);
+            });
+            item.SetStateExitAction(() => {
+                _playerMove.SetMoveActive(true);
+                _anim.SetBool("IsAttackEnd", true);
+            });
         }
     }
 
@@ -44,9 +61,9 @@ public class AttackSetController : MonoBehaviour
     public void ActiveAttackCollider(int colliderIndex, float activeDuraration,int power)
     {
         //ID範囲外時の処理
-        if (colliderIndex < 0 || colliderIndex >= _activeCollider.Length) colliderIndex = 0;
-        _attackCollider[colliderIndex].AttackPower = power;
+        if (colliderIndex < 0 || colliderIndex >= AttackCollider.Count) colliderIndex = 0;
+        AttackCollider[colliderIndex].AttackPower = power;
         attackColliderCoroutine[colliderIndex] = null;
-        attackColliderCoroutine[colliderIndex] = StartCoroutine(ColliderGenerater.GenerateCollider(_activeCollider[colliderIndex], activeDuraration));
+        attackColliderCoroutine[colliderIndex] = StartCoroutine(ColliderGenerater.GenerateCollider(AttackCollider[colliderIndex].gameObject, activeDuraration));
     }
 }
