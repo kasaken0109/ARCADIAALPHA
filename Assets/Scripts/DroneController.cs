@@ -37,25 +37,20 @@ public class DroneController : MonoBehaviour
 
     DroneMode _droneMode = DroneMode.Idle;
     float distance;
-    GameObject attackTarget;
 
     [SerializeField]
     float anglePlus = 50f;
 
-    Rigidbody _rb;
     [SerializeField]
     Animator _anim;
-    bool IsEndMove = false;
-    bool IsShooting = false;
+    public bool IsShooting = false;
 
-    void Start()
-    {
-        attackTarget = GameObject.FindGameObjectWithTag("Enemy");
-        TryGetComponent(out _rb);
-    }
+    //void Start()
+    //{
+    //}
     void Update()
     {
-        LookPlayer();
+        if(!IsShooting)LookPlayer();
         //transform.position = new Vector3(transform.position.x, m_chaseTarget.transform.position.y + m_floatHeight, transform.position.z);
         distance = Vector3.Distance(transform.position,m_chaseTarget.transform.position);
         //Debug.Log(distance);
@@ -68,7 +63,6 @@ public class DroneController : MonoBehaviour
     /// </summary>
     void Chase(Vector3 target)
     {
-        var dig = Camera.main.transform.TransformDirection(GameManager.Player.transform.localEulerAngles);
         Vector3 destination = target
             + new Vector3(m_chaseOffset.x * Mathf.Cos(anglePlus / 180f * Mathf.PI),
             0,
@@ -80,18 +74,14 @@ public class DroneController : MonoBehaviour
     /// <summary>
     /// 敵の方向を見る
     /// </summary>
-    void LookEnemy()
+    public void LookEnemy(GameObject attackTarget)
     {
-        if (!attackTarget)
-        {
-            return;
-        }
         Vector3 diff = attackTarget.transform.position - transform.position;
         Quaternion lookAngle = Quaternion.LookRotation(diff);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookAngle, m_chaseLookTime * Time.deltaTime);
+        _droneAnim.transform.rotation = Quaternion.LookRotation(diff); //Quaternion.Slerp(_droneAnim.rotation, lookAngle, 0.2f * Time.deltaTime);
     }
 
-    void ChangeMode(DroneMode droneMode)
+    public void ChangeMode(DroneMode droneMode)
     {
         switch (droneMode)
         {
@@ -105,6 +95,7 @@ public class DroneController : MonoBehaviour
                 break;
             case DroneMode.Shooting:
                 ChangeBoostEffect(droneMode);
+                _anim.SetBool("IsChase", true);
                 break;
             default:
                 break;
@@ -120,11 +111,10 @@ public class DroneController : MonoBehaviour
     }
 
     /// <summary>
-    /// 敵の方向を見る
+    /// プレイヤーの方向を見る
     /// </summary>
     void LookPlayer()
     {
-        
         _droneAnim.rotation = GameManager.Player.transform.rotation;
     }
 
