@@ -1,12 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class LayserModuleController : MonoBehaviour
 {
-    [SerializeField]
-    Bullet m_bullet;
-
     [SerializeField]
     private GameObject m_effect = null;
 
@@ -24,6 +22,9 @@ public class LayserModuleController : MonoBehaviour
     bool IsSounded = false;
     bool IsHitSound = false;
 
+    int damage;
+    public int Damage { set { damage = value; } }
+    Vector3 boxScale = new Vector3(10, 10, 2);
     Vector3 hitPosition;
     Ray ray;
     GameObject hitObject = null;
@@ -34,18 +35,12 @@ public class LayserModuleController : MonoBehaviour
     {
         enemy = GameObject.FindWithTag("Enemy");
         LookEnemy();
-        Instantiate(m_bullet.MyBullet, transform.position, transform.rotation,transform);
-        RayHit(ray, ref hitObject);
-        Destroy(gameObject, 5f);
-
     }
 
     private void LookEnemy()
     {
         if (!enemy) return;
         transform.LookAt(new Vector3(enemy.transform.position.x, transform.position.y, enemy.transform.position.z));
-        //Quaternion targetRotation = Quaternion.LookRotation(enemy.transform.position);
-        //this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, 1);  // Slerp を使うのがポイント
     }
 
     private void Update()
@@ -62,7 +57,7 @@ public class LayserModuleController : MonoBehaviour
     IEnumerator WaitCoolDown()
     {
         CanUse = false;
-        yield return new WaitForSeconds(m_bullet.Delay);
+        yield return new WaitForSeconds(0.5f);
         CanUse = true;
     }
 
@@ -70,7 +65,7 @@ public class LayserModuleController : MonoBehaviour
     private RaycastHit RayHit(Ray ray, ref GameObject hitObject)
     {
         RaycastHit hit;
-        bool IsHit = Physics.BoxCast(gameObject.transform.position, new Vector3(10,10,2), transform.forward, out hit, gameObject.transform.rotation, m_shootRange);
+        bool IsHit = Physics.BoxCast(gameObject.transform.position, boxScale, transform.forward, out hit, gameObject.transform.rotation, m_shootRange);
 
         if (IsHit)
         {
@@ -82,7 +77,7 @@ public class LayserModuleController : MonoBehaviour
                 if (hitObject.tag == "Enemy")
                 {
                     IsSounded = !IsSounded ? true : false;
-                    hitObject.GetComponentInParent<IDamage>().AddDamage(m_bullet.Damage,ref m_effect);
+                    hitObject.GetComponentInParent<IDamage>().AddDamage(damage,ref m_effect);
                     if(!IsEnd)Instantiate(m_effect, hitPosition, Quaternion.identity);
                 }
                 if (!IsHitSound)
@@ -93,9 +88,7 @@ public class LayserModuleController : MonoBehaviour
                 }
                 IsEnd = true;
             }
-            
         }
-
         return hit;
     }
 
@@ -106,13 +99,5 @@ public class LayserModuleController : MonoBehaviour
     void PlayHitSound(Vector3 position)
     {
         if (m_hitSound) AudioSource.PlayClipAtPoint(m_hitSound, position, 0.1f);
-    }
-
-    /// <summary>
-    /// 破壊時にエフェクトを発生させる
-    /// </summary>
-    private void OnDestroy()
-    {
-        Instantiate(m_effect, transform.position, transform.rotation);
     }
 }
