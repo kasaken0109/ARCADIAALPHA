@@ -64,12 +64,14 @@ public class BulletFire : MonoBehaviour
     /// <summary>弾の消費エネルギー(可変)</summary>
     BufferParameter bulletEnergy;
 
+    DroneController droneController;
     void Start()
     {
         m_stance.fillAmount = 0.5f;
         _cooldownUI.fillAmount = 0;
         _cooldownInformation.SetActive(false);
         call = gameObject;
+        TryGetComponent(out droneController);
     }
 
     // Update is called once per frame
@@ -98,11 +100,15 @@ public class BulletFire : MonoBehaviour
         {
             BulletLaserController laser;
             PlayerBulletController bullet;
+            LayserModuleController layserModule;
             var target = GameObject.FindGameObjectsWithTag("Enemy")
                 .Single(c => c.GetComponent<HitPosRetention>());
-            var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);//Camera.main.transform.rotation);
+            Debug.Log(target.name);
+            var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);
             var targetpos = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
                 instance.transform.LookAt(targetpos);
+            droneController.IsShooting = true;
+            droneController.LookEnemy(target);
             switch (equip.BulletType)
             {
                 case BulletType.Lay:
@@ -110,6 +116,12 @@ public class BulletFire : MonoBehaviour
                     {
                         laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
                         laser.Target = target;
+                    }
+                    else if (instance.TryGetComponent(out layserModule))
+                    {
+                        layserModule.Damage = Mathf.CeilToInt(bulletDamage.Value);
+                        //laser.Target = target;
+                        instance.transform.SetParent(transform);
                     }
                     break;
                 case BulletType.Physics:
@@ -141,6 +153,7 @@ public class BulletFire : MonoBehaviour
     IEnumerator CoolDown()
     {
         canShoot = false;
+        yield return new WaitForSeconds(equip.AttackDuraration);
         _cooldownInformation.SetActive(true);
         _cooldownUI.fillAmount = 1;
         yield return null;// new WaitForSeconds(cooldownTime.Value);
@@ -156,7 +169,9 @@ public class BulletFire : MonoBehaviour
                     _cooldownInformation.SetActive(false);
                     canShoot = true;
                 });
-        
+        yield return new WaitForSeconds(0.5f);
+        droneController.IsShooting = false;
+
     }
 
     /// <summary>

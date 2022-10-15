@@ -6,9 +6,6 @@ using UnityEngine.Events;
 
 public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
 {
-    [Tooltip("照準のUI")]
-    RectTransform _crosshairUi = null;
-
     [SerializeField]
     [Tooltip("射程距離")]
     float _shootRange = 50f;
@@ -66,8 +63,7 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
     {
         TryGetComponent(out _rb);
         bulletOrigin = transform.position;
-        _rb.velocity = new Vector3(0, 0, _speed);
-        _crosshairUi = GameManager.Instance.CrosshairUI;
+        _rb.velocity = transform.forward * _speed;
         EndHit = false;
     }
     void Update()
@@ -85,11 +81,12 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
     /// <returns></returns>
     RaycastHit RayHit(Ray ray, ref GameObject hitObject)
     {
-        EndHit = true;
+        
         bool IsHit = Physics.Raycast(ray, out hit, _shootRange, _layerMask);
 
         if (IsHit)
         {
+            EndHit = true;
             hitPosition = hit.point;    // Ray が当たった場所
             hitObject = hit.collider.gameObject;    // Ray が洗ったオブジェクト
             Debug.Log(hitObject);
