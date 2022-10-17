@@ -15,7 +15,7 @@ public class BulletSelector : MonoBehaviour
     [Tooltip("‘I‘ğ‘ÎÛ‚Ìƒ{ƒ^ƒ“")]
     ButtonSelector[] _buttons = default;
 
-    void Awake()
+    void OnEnable()
     {
         BulletInformationInit();
     }

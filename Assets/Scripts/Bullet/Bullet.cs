@@ -15,6 +15,10 @@ public class Bullet : ScriptableObject
     int m_damage = 1;
 
     [SerializeField]
+    [Tooltip("弾の攻撃持続時間")]
+    float _attackDuraration = 0;
+
+    [SerializeField]
     [Tooltip("クールダウンタイム")]
     float m_delay = 0.2f;
 
@@ -44,10 +48,12 @@ public class Bullet : ScriptableObject
     private Sprite m_image = default;
 
 
-    private int m_bulletID = 0;
+    int m_bulletID = 0;
     public GameObject MyBullet => m_bullet;
 
     public int Damage => m_damage;
+
+    public float AttackDuraration => _attackDuraration;
 
     public IPassiveAction PassiveAction => _passiveAction;
 
