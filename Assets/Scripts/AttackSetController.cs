@@ -46,7 +46,7 @@ public class AttackSetController : MonoBehaviour
                 _anim.SetBool("IsAttackEnd", false);
             });
             item.SetStateExitAction(() => {
-                _playerMove.SetMoveActive(true);
+                _playerMove.StopFloat();
                 _anim.SetBool("IsAttackEnd", true);
             });
         }

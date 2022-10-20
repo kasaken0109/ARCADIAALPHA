@@ -10,9 +10,9 @@ public class InformationPresenter : MonoBehaviour
     private static InformationPresenter _instance;
 
     [SerializeField]
-    private Text _InformExplain = default;
+    private Text _SkillName = default;
     [SerializeField]
-    private Text _InformName = default;
+    private Text _BulletName = default;
     [SerializeField]
     private Text _InformCost = default;
 
@@ -25,16 +25,14 @@ public class InformationPresenter : MonoBehaviour
     public void SetExplanation(Bullet bullet) 
     {
         if (!bullet) return;
-        _InformName.text = "機能名 : " + bullet.Name;
+        _BulletName.text = "機能名 : " + bullet.Name;
         _InformCost.text = "コスト : " + (bullet.ConsumeStanceValue * FixRate).ToString();
-        _InformExplain.text = bullet.ExplainText;
     }
 
     public void SetExplanation(CustomSkill skill)
     {
         if (!skill) return;
-        _InformName.text = "機能名 : " + skill.SkillName;
-        _InformCost.text = "コスト : " + (skill.ConsumeCost * FixRate).ToString();
-        _InformExplain.text = skill.ExplainText;
+        _BulletName.text = "機能名 : " + skill.SkillName;
+        _SkillName.text = skill.ExplainText;
     }
 }
