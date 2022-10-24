@@ -16,46 +16,63 @@ public class PlayerAttackController : MonoBehaviour
     [SerializeReference, SubclassSelector]
     ICondition _start = default;
 
-    [SerializeField]
-    [Tooltip("ïêäÌÇÃäÓëbÉ_ÉÅÅ[ÉW")]
-    int _weaponDamage = 80;
-
     Animator _anim;
 
     AttackSetController _attackSetController = default;
 
     AttackSet[] _currentSets;
 
+    BufferParameter _attackPower;
+
     ICondition current;
 
     int playIndex = 0;
+
+    bool isPlayFailureState = false;
 
     void Start()
     {
         TryGetComponent(out _attackSetController);
         TryGetComponent(out _anim);
         ChangeAttackSet(_attackNormalSets);
+        _attackPower = new BufferParameter(1f);
     }
     void Update()
     {
-        if (current.Check() == ConditionState.Success)
+        var state = current.Check();
+        //Debug.Log(current);
+        switch (state)
         {
-            _anim.Play(_currentSets[playIndex]._NextStateName);
-            current.Reset();
-            playIndex = playIndex == _currentSets.Length - 1 ? 0 : playIndex + 1;
-            current = _currentSets[playIndex]._condition;
-        }
-        else if(current.Check() == ConditionState.Failure)
-        {
-            current.Reset();
-            playIndex = 0;
-            current = _currentSets[playIndex]._condition;
+            case ConditionState.Running:
+                //Debug.Log("Running");
+                break;
+            case ConditionState.Success:
+                //Debug.Log("Succ");
+                _anim.CrossFade(_currentSets[playIndex]._NextStateName,0,0,0,0.3f);
+                //_anim.Play(_currentSets[playIndex]._NextStateName);
+                current.Reset();
+                playIndex = playIndex == _currentSets.Length - 1 ? 0 : playIndex + 1;
+                current = _currentSets[playIndex]._condition;
+                current.IsSuccess = false;
+                current.Reset();
+                break;
+            case ConditionState.Failure:
+                if (!isPlayFailureState) {
+                    _anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
+                    //_anim.Play(_currentSets[playIndex]._FailedStateName);
+                    isPlayFailureState = true;
+                }
+                current.Reset();
+                playIndex = 0;
+                CheckPlayerState();
+                current = _currentSets[playIndex]._condition;
+                break;
         }
     }
 
     public void SetAttackCollider(AttackData attackData)
     {
-        _attackSetController.ActiveAttackCollider(attackData.ActiveColliderIndex, attackData.ActiveDuarration, (int)attackData.AttackRate * _weaponDamage);
+        _attackSetController.ActiveAttackCollider(attackData.ActiveColliderIndex, attackData.ActiveDuarration, (int)(attackData.AttackRate * GetComponentInChildren<WeaponAttributeController>().AttackPower * _attackPower.Value));
     }
 
     void ChangeAttackSet(AttackSet[] set)
@@ -73,12 +90,13 @@ public class PlayerAttackController : MonoBehaviour
 
     public void AttackSignal()
     {
-        CheckPlayerState();
+        //CheckPlayerState();
         current.IsSuccess = true;
     }
 
-    void CheckPlayerState()
+    public void CheckPlayerState()
     {
+        isPlayFailureState = false;
         switch (PlayerManager.Instance.PlayerState)
         {
             case PlayerState.OnField:
@@ -88,11 +106,15 @@ public class PlayerAttackController : MonoBehaviour
                 ChangeAttackSet(_attackMidAirSets);
                 break;
             case PlayerState.Invisible:
-                Debug.Log("ChangeCritical");
                 ChangeAttackSet(_attackCriticalSets);
                 break;
             default:
                 break;
         }
+    }
+
+    public void ChangeAttackPower(float value, float time)
+    {
+        StartCoroutine(_attackPower.ChangeValue(value, time));
     }
 }
