@@ -9,11 +9,13 @@ public class StartCondition : ICondition
 
     public ConditionState Check()
     {
+        //Debug.Log($"Start:{isSuccess}");
         return isSuccess ? ConditionState.Success : ConditionState.Running;
     }
 
     public void Reset()
     {
+        //Debug.Log("Reset");
         isSuccess = false;
     }
 }

@@ -11,6 +11,9 @@ public class AttackSet
     [Tooltip("次のステート名")]
     public string _NextStateName = "";
 
+    [Tooltip("判定失敗時のステート名")]
+    public string _FailedStateName = "";
+
     [SerializeReference,SubclassSelector]
     [Tooltip("判定クラス")]
     public ICondition _condition = default;
