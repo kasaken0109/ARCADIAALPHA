@@ -27,11 +27,13 @@ public class PassiveActionCaller : MonoBehaviour
     static PassiveActionCaller _instance;
 
     PlayerMoveController playerControll;
+    PlayerAttackController playerAttack;
     PlayerManager playerManager;
     BulletFire bulletFire;
     void OnAwake()
     {
         playerControll = FindObjectOfType<PlayerMoveController>();
+        playerAttack = FindObjectOfType<PlayerAttackController>();
         playerManager = FindObjectOfType<PlayerManager>();
         bulletFire = FindObjectOfType<BulletFire>();
     }
@@ -39,6 +41,18 @@ public class PassiveActionCaller : MonoBehaviour
     public void PlayerSpeedUp(float speedupRate, float time)
     {
         playerControll.ChangeMoveSpeed(speedupRate,time);
+        Debug.Log("Call1");
+    }
+
+    public void PlayerAttackUp(float attackupRate, float time)
+    {
+        playerAttack.ChangeAttackPower(attackupRate, time);
+        Debug.Log("Call1");
+    }
+
+    public void PlayerDefenceUp(float defenceupRate, float time)
+    {
+        playerManager.ChangeDefenceValue(defenceupRate, time);
         Debug.Log("Call1");
     }
 
@@ -63,18 +77,15 @@ public class PassiveActionCaller : MonoBehaviour
     public void ReduceEnergy(float reduceRate)
     {
         bulletFire.ChangeBulletEnergy(reduceRate);
-        Debug.Log("Call5");
     }
 
     public void ReduceCoolDown(float reduceRate)
     {
         bulletFire.ChangeCoolDown(reduceRate);
-        Debug.Log("Call6");
     }
 
     public void AddBulletDamage(float addRate)
     {
         bulletFire.ChangeBulletDamage(addRate);
-        Debug.Log("Call7");
     }
 }

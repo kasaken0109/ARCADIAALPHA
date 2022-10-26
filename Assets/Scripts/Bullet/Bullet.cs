@@ -27,6 +27,9 @@ public class Bullet : ScriptableObject
     [Range(-1, 1)]
     private float m_consumeStanceValue;
 
+    [SerializeField]
+    BulletCustomType _bulletCustomType = BulletCustomType.All;
+
     [Tooltip("カスタムスキル")]
     public CustomSkill passiveSkill = default;
 
@@ -47,6 +50,8 @@ public class Bullet : ScriptableObject
     [SerializeField]
     private Sprite m_image = default;
 
+    [SerializeField]
+    private Sprite _equipImage = default;
 
     int m_bulletID = 0;
     public GameObject MyBullet => m_bullet;
@@ -58,6 +63,8 @@ public class Bullet : ScriptableObject
     public IPassiveAction PassiveAction => _passiveAction;
 
     public float ConsumeStanceValue => m_consumeStanceValue;
+
+    public BulletCustomType BulletCustomType => _bulletCustomType;
 
     public CustomSkill PassiveSkill { get =>passiveSkill;  set { passiveSkill = value; } }
 
@@ -71,6 +78,8 @@ public class Bullet : ScriptableObject
     public string Name => m_name;
 
     public Sprite Image => m_image;
+
+    public Sprite EquipImage => _equipImage;
 
     public string ExplainText => m_explainText;
 }

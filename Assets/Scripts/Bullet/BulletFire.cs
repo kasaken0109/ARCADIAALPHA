@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -13,6 +13,14 @@ public enum BulletType
     Lay,//Raycastで当たり判定を検知する
     Physics,//Colliderで当たり判定を検知する
     Skill,//スキルを発動する
+}
+
+[Flags]
+public enum BulletCustomType
+{
+    Buff = 1,
+    Debuff = 2,
+    All = 4
 }
 
 /// <summary>
@@ -38,7 +46,7 @@ public class BulletFire : MonoBehaviour
 
     [SerializeField]
     [Tooltip("クールダウン表示用UI")]
-    Image _cooldownUI = default;
+    Image[] _cooldownUI = default;
 
     [SerializeField]
     GameObject _cooldownInformation;
@@ -64,11 +72,17 @@ public class BulletFire : MonoBehaviour
     /// <summary>弾の消費エネルギー(可変)</summary>
     BufferParameter bulletEnergy;
 
+    /// <summary>現在のクールダウン表示</summary>
+    Image currentCoolDown = null;
+
     DroneController droneController;
     void Start()
     {
         m_stance.fillAmount = 0.5f;
-        _cooldownUI.fillAmount = 0;
+        foreach (var item in _cooldownUI)
+        {
+            item.fillAmount = 0;
+        }
         _cooldownInformation.SetActive(false);
         call = gameObject;
         TryGetComponent(out droneController);
@@ -103,7 +117,7 @@ public class BulletFire : MonoBehaviour
             LayserModuleController layserModule;
             var target = GameObject.FindGameObjectsWithTag("Enemy")
                 .Single(c => c.GetComponent<HitPosRetention>());
-            Debug.Log(target.name);
+            //Debug.Log(target.name);
             var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);
             var targetpos = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
                 instance.transform.LookAt(targetpos);
@@ -155,15 +169,14 @@ public class BulletFire : MonoBehaviour
         canShoot = false;
         yield return new WaitForSeconds(equip.AttackDuraration);
         _cooldownInformation.SetActive(true);
-        _cooldownUI.fillAmount = 1;
+        _cooldownUI[0].fillAmount = 1;
         yield return null;// new WaitForSeconds(cooldownTime.Value);
         DOTween.To(
-                    () => _cooldownUI.fillAmount,
-                    (x) => _cooldownUI.fillAmount = x,
+                    () => _cooldownUI[0].fillAmount,
+                    (x) => _cooldownUI[0].fillAmount = x,
                     0,
                     cooldownTime.Value
-
-                    )
+                   )
                 .OnComplete(() =>
                 {
                     _cooldownInformation.SetActive(false);
@@ -185,7 +198,7 @@ public class BulletFire : MonoBehaviour
         bulletDamage = new BufferParameter(equip.Damage);
         bulletEnergy = new BufferParameter(equip.ConsumeStanceValue);
         if(equip.PassiveSkill && equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute();
-        m_bullet._NameDisplay.text = bullet.Name;
+        m_bullet._NameDisplay.sprite= bullet.EquipImage;
         m_bullet._skillDisplay.sprite = bullet.passiveSkill ? bullet.passiveSkill.ImageBullet : null;
 
         //パッシブスキルセット時のコストを計算
