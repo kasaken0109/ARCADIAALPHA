@@ -23,6 +23,10 @@ public class PlayerMoveController : ColliderGenerater
     float m_isGroundedLength = 1.1f;
 
     [SerializeField]
+    [Tooltip("接地判定の際、中心 (Pivot) からどれくらいの距離を「接地している」と判定するかの長さ")]
+    float m_isPreGroundedLength = 1.1f;
+
+    [SerializeField]
     [Tooltip("スピードアップエフェクト")]
     GameObject m_speedup = null;
 
@@ -42,7 +46,7 @@ public class PlayerMoveController : ColliderGenerater
     bool IsDodgeing = false;
     float stanceValue;
     const float attackSpeed = 1;
-    const float disableMoveTime = 1f;
+    const float disableMoveTime = 0.5f;
     /// <summary>浮く距離</summary>
     const float floatUpDistance = 2f;
     /// <summary>浮く時間</summary>
@@ -54,6 +58,9 @@ public class PlayerMoveController : ColliderGenerater
 
     bool m_isMoveActive = true;
 
+    int dodgeCount = 2;
+
+    PlayerAttackController _attackController;
     public float StanceValue => stanceValue;
     public void SetMoveActive(bool IsMoveActive) { m_isMoveActive = IsMoveActive; }
 
@@ -93,6 +100,8 @@ public class PlayerMoveController : ColliderGenerater
         _jumpPower = new BufferParameter(m_settings.JumpPower);
         _dodgeDistance = new BufferParameter(m_settings.DodgeLength);
         _attackSpeed = new BufferParameter(_anim.speed);
+        _attackController = FindObjectOfType<PlayerAttackController>();
+        dodge = dodgeCount;
     }
 
     void Update()
@@ -110,7 +119,7 @@ public class PlayerMoveController : ColliderGenerater
         if (!m_isMoveActive) dir = Vector3.zero;
         dir = Camera.main.transform.TransformDirection(dir);    // メインカメラを基準に入力方向のベクトルを変換する
         dir.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
-        SetPlayerAngle(dir);
+        if(!IsDodgeing)SetPlayerAngle(dir);
         Running(dir); // 入力した方向に移動する
         velo.y = _rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
         _rb.velocity = velo;   // 計算した速度ベクトルをセットする
@@ -142,20 +151,9 @@ public class PlayerMoveController : ColliderGenerater
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * m_settings.TurnSpeed);  // 徐々にプレイヤーを回転させる
         }
     }
-
-    private void MoveAction()
-    {
-        //空中での入力
-        if (!IsGrounded())
-        {
-            _anim.SetFloat(SpeedHash, 0);
-            float veloY = _rb.velocity.y;
-            _rb.velocity = new Vector3(_rb.velocity.x, veloY, _rb.velocity.z);
-        }
-    }
     bool CanJump = true;
 
-    float coolTime = 0.5f;
+    const float coolTime = 0.35f;
 
     Coroutine jump = null;
     /// <summary>
@@ -163,14 +161,21 @@ public class PlayerMoveController : ColliderGenerater
     /// </summary>
     public void Jump()
     {
-        if (!IsGrounded() || jump != null) return;
+        if (jump != null) return;
         if (!CanJump)
         {
             jump = StartCoroutine(CooldownSkill());
             return;
         }
+
         _anim.SetTrigger(JumpHash);
-        _rb.DOMoveY(_jumpPower.Value, 0.2f);
+        _anim.SetBool("IsFall", false);
+        _rb.DOMoveY(_jumpPower.Value, 0.2f).OnComplete(() =>
+        {
+            _anim.SetBool("IsFall", true);
+            _attackController.CheckPlayerState();
+        });
+
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
         CanJump = false;
     }
@@ -189,7 +194,7 @@ public class PlayerMoveController : ColliderGenerater
     float time;
     IEnumerator Set()
     {
-        while (time < 1f)
+        while (time < 0.2f)
         {
             _rb.velocity = new Vector3(_rb.velocity.x, -0.1f, _rb.velocity.z);
             time += Time.deltaTime;
@@ -210,10 +215,35 @@ public class PlayerMoveController : ColliderGenerater
     /// <param name="direction">回避方向</param>
     public void Dodge(Vector3 direction)
     {
-        if (CanUse && IsGrounded())
+        if (!IsGrounded()) return;
+        if (dodge > 0)
+        {
+            StartCoroutine(DisableMove());
+            RaycastHit hit;
+            var dodgeDistance = _dodgeDistance.Value;
+            var dir = Camera.main.transform.TransformDirection(direction);    // メインカメラを基準に入力方向のベクトルを変換する
+            dir.y = 0;
+            direction = direction.magnitude < 0.2f ? transform.forward : dir;
+            Ray ray = new Ray(transform.position, direction);
+            bool Ishit = //Physics.BoxCast(transform.position, Vector3.one * _dodgeDistance.Value, direction, out hit, Quaternion.identity,_dodgeDistance.Value, _layerMask);
+            Physics.Raycast(ray, out hit, _dodgeDistance.Value, _layerMask);
+            var hitBox = GetComponent<CapsuleCollider>();
+            if (Ishit)
+            {
+                dodgeDistance = Vector3.Distance(transform.position, hit.point) - hitBox.radius * 2 < dodgeDistance ?
+                    (Vector3.Distance(transform.position, hit.point) - hitBox.radius * 2) : dodgeDistance;
+            }
+            _anim.Play("Dodge");
+            m_speedup.SetActive(true);
+            ///回避時の移動入力に応じて移動距離を変更
+            
+            _rb.DOMove(transform.position + direction * dodgeDistance, disableMoveTime).OnComplete(() => IsDodgeing = false).SetDelay(0.2f);
+            dodge--;
+        }
+        else
         {
             ///回避コルーチンを開始
-            StartCoroutine(SetDodge(m_settings.DodgeCoolDown,direction));
+            StartCoroutine(SetDodge(m_settings.DodgeCoolDown));
         }
     }
 
@@ -229,36 +259,17 @@ public class PlayerMoveController : ColliderGenerater
     }
 
     [Tooltip("行動出来るかどうか")]
-    bool CanUse = true;
+    bool canUse = true;
+    int dodge;
     /// <summary>
     ///　行動のクールダウンを制御する
     /// </summary>
     /// <param name="cooldown">クールダウン時間</param>
     /// <returns></returns>
-    IEnumerator SetDodge(float cooldown, Vector3 direction)
+    IEnumerator SetDodge(float cooldown)
     {
-        StartCoroutine(DisableMove());
-        RaycastHit hit;
-        var dodgeDistance = _dodgeDistance.Value;
-        direction = direction.magnitude < 0.2f ? transform.forward * -1 : direction;
-        Ray ray = new Ray(transform.position, direction);
-        bool Ishit = Physics.Raycast(ray, out hit,_dodgeDistance.Value,_layerMask);
-        var hitBox = GetComponent<CapsuleCollider>();
-        if (Ishit)
-        {
-            dodgeDistance = Vector3.Distance(transform.position, hit.point) - hitBox.radius * 2 < dodgeDistance ?
-                Vector3.Distance(transform.position, hit.point) - hitBox.radius * 2 : dodgeDistance;
-        }
-        //m_rush.SetActive(true);
-        _anim.Play("Crouch");
-        //Debug.Log(direction);
-        transform.rotation = Quaternion.LookRotation(direction * -1);
-        ///回避時の移動入力に応じて移動距離を変更
-        _rb.DOMove(transform.position - direction * dodgeDistance, disableMoveTime);
-        IsDodgeing = false;
-        CanUse = false;
-        yield return new WaitForSeconds(cooldown);
-        CanUse = true;
+        yield return new WaitForSeconds(cooldown + 0.5f);
+        dodge = dodgeCount;
     }
 
     IEnumerator DisableMove()
@@ -282,16 +293,45 @@ public class PlayerMoveController : ColliderGenerater
         PlayerManager.Instance.PlayerState = isGrounded ? PlayerState.OnField : PlayerState.InAir;
         return isGrounded;
     }
-
-    bool IsRunning = false;
+    bool isRunning = false;
+    float runSpeedFixer = 0f;
+    Coroutine running = null;
     /// <summary>
     /// 移動状態を制御する
     /// </summary>
     public void Running(Vector3 dir)
     {
+        isRunning = dir.magnitude >= 0.1f;
+        if (isRunning && isEndCoroutine && runSpeedFixer <= 0.9f)
+        {
+            isEndCoroutine = false;
+            StartCoroutine(SetSpeed());
+        }
+        else if (!isRunning)
+        {
+            runSpeedFixer = 0;
+        }
         //入力に応じてスピード、アニメーションを変更する
-        velo = dir.normalized * _moveSpeed.Value;
+        velo = dir.normalized * _moveSpeed.Value * runSpeedFixer;
         _anim.SetFloat(SpeedHash, (dir == Vector3.zero ? 0 : _moveSpeed.Value));
+    }
+
+    bool isEndCoroutine = true;
+    IEnumerator SetSpeed()
+    {
+        runSpeedFixer = 0;
+        while (runSpeedFixer <= 1f)
+        {
+            if (!isRunning)
+            {
+                runSpeedFixer = 0;
+                isEndCoroutine = true;
+                yield break;
+            }
+            yield return null;
+            runSpeedFixer += 0.01f;
+        }
+        isEndCoroutine = true;
     }
 
     /// <summary>
@@ -300,7 +340,7 @@ public class PlayerMoveController : ColliderGenerater
     /// <param name="value">走り入力がされているかどうか</param>
     public void SetRunning(bool value) 
     {
-        IsRunning = value;
+        isRunning = value;
         m_speedup.SetActive(value);
     }
     public void ChangeMoveSpeed(float value, float time)
@@ -323,7 +363,9 @@ public class PlayerMoveController : ColliderGenerater
     /// <summary>
     /// 攻撃を受けたときのノックバック関数
     /// </summary>
-    public void BasicHitAttack() => _rb.DOMove(this.transform.position - Camera.main.transform.forward * 2, 1f);
+    public void BasicHitAttack() => _rb.DOMove(this.transform.position - Camera.main.transform.forward * 2, 0.5f)
+        .OnStart(() => _rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY)
+        .OnComplete(() => _rb.constraints = RigidbodyConstraints.FreezeRotation);
 
     /// <summary>
     /// 攻撃を受けたときのノックバック関数
@@ -343,7 +385,7 @@ public class PlayerMoveController : ColliderGenerater
     /// <summary>
     /// 重力有効化
     /// </summary>
-    public void StopFloat() => _rb.useGravity = true;
+    public void StopFloat() => _rb.DOMoveY(0, floatUpDuraration);
 
     /// <summary>
     /// 重力無効化
@@ -351,7 +393,7 @@ public class PlayerMoveController : ColliderGenerater
     public void StartFloat()
     {
         _rb.constraints = RigidbodyConstraints.FreezeAll;
-        _rb.DOMoveY(GameManager.Player.transform.position.y + floatUpDistance, floatUpDuraration)
+        _rb.DOMoveY(GameManager.Player.transform.position.y , floatUpDuraration)
             .OnComplete(() => _rb.constraints = RigidbodyConstraints.FreezeRotation);
     }
 
@@ -360,4 +402,11 @@ public class PlayerMoveController : ColliderGenerater
     /// </summary>
     public void PlayDodgeSE() => SoundManager.Instance.PlayDodge();
     #endregion
+
+    void OnDrawGizmos()
+    {
+        //　Cubeのレイを疑似的に視覚化
+        Gizmos.color = Color.green;
+        //Gizmos.DrawWireCube(transform.position + transform.forward * distanceFromTargetObj, Vector3.one);
+    }
 }
