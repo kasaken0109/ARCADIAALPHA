@@ -10,8 +10,11 @@ using DG.Tweening;
 [System.Serializable]
 public struct BulletInformation
 {
-    [Tooltip("名前を表示するUI")]
-    public Text _NameDisplay;
+    [Tooltip("弾を表示するUI")]
+    public Image _NameDisplay;
+
+    [Tooltip("弾を表示するバックグラウンドUI")]
+    public Image _NameBackgroundDisplay;
 
     [Tooltip("スキルを表示するUI")]
     public Image _skillDisplay;
@@ -26,18 +29,6 @@ public class BulletSelectDisplay : MonoBehaviour
     [Tooltip("弾の選択画面の弾情報表示UI")]
     BulletInformation[] _bulletInformations = default;
 
-    [SerializeField]
-    [Tooltip("選択フレームの表示位置")]
-    RectTransform _framePosition = default;
-
-    [SerializeField]
-    [Tooltip("フレームが動く対象の位置")]
-    RectTransform[] _movePosition = default;
-
-    [SerializeField]
-    [Tooltip("フレームが移動にかかる時間")]
-    float _moveDuraration = 0.5f;
-
     /// <summary>
     /// 弾の情報を初期化する
     /// </summary>
@@ -46,17 +37,8 @@ public class BulletSelectDisplay : MonoBehaviour
     {
         for (int i = 0; i < bullets.Length; i++)
         {
-            _bulletInformations[i]._NameDisplay.text = bullets[i].Name;
+            _bulletInformations[i]._NameDisplay.sprite = bullets[i].EquipImage;
             _bulletInformations[i]._skillDisplay.sprite = bullets[i].passiveSkill?.ImageBullet;
         }
-    }
-
-    /// <summary>
-    /// フレームを指定のポイントに移動させる
-    /// </summary>
-    /// <param name="index">移動ポイントのインデックス</param>
-    public void MoveSelectFrame(int index)
-    {
-        _framePosition.DOMove(_movePosition[index].position, _moveDuraration);
     }
 }
