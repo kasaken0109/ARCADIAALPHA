@@ -8,7 +8,9 @@ public enum EquipSceneState
 {
     EquipMain,
     BulletSelect,
-    SkillSelect
+    SkillSelect,
+    Default,
+    SwordSelect
 }
 public class EquipChangeManager : MonoBehaviour
 {
@@ -18,25 +20,48 @@ public class EquipChangeManager : MonoBehaviour
     UIAnimationController[] _uIAnimations = default;
     [SerializeField]
     GameObject[] _defaultSelectObject = null;
+    [SerializeField]
+    GameObject[] _defaultPanel;
 
+    public EquipSceneState SceneState => _sceneState;
     EquipSceneState _sceneState = EquipSceneState.EquipMain;
     EventSystem eventSystem;
     GameObject prevSelected = null;
+
     // Start is called before the first frame update
     void Awake()
     {
         eventSystem = FindObjectOfType<EventSystem>();
-        SetState(0);
+        SetState(3);
     }
     public void SetState(int equipId)
     {
         var equipSceneState = (EquipSceneState)equipId;
+        if(equipId > 2)
+        {
+            if (_sceneState == equipSceneState) return;
+            switch (equipSceneState)
+            {
+                case EquipSceneState.Default:
+                    var prev = _sceneState == EquipSceneState.EquipMain ? 2 : 3;
+                    EventSystem.current.SetSelectedGameObject(_defaultSelectObject[3]);
+                    _uIAnimations[prev].NonActive();
+                    break;
+                case EquipSceneState.SwordSelect:
+                    _defaultPanel[1].SetActive(true);
+                    _uIAnimations[3].Active();
+                    break;
+                default:
+                    break;
+            }
+        }
         if (_sceneState != equipSceneState)
         {
             switch (equipSceneState)
             {
                 case EquipSceneState.EquipMain:
                     var target = _sceneState == EquipSceneState.BulletSelect ? _uIAnimations[0] : _uIAnimations[1];
+                    _defaultPanel[0].SetActive(true);
                     _panelAnimation.BackPanel();
                     _panelAnimation.SetEnableDisplayChange(false);
                     target.NonActive();
