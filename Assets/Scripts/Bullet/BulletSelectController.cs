@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.UI;
 
 /// <summary>
 /// 弾の選択処理を行う
@@ -22,33 +23,18 @@ public class BulletSelectController : MonoBehaviour
     private BulletList _init;
 
     [SerializeField]
-    [Tooltip("弾の選択UI")]
-    private GameObject[] UI;
-
-    [SerializeField]
-    private Animator _anim;
-
-    private BulletSelectDisplay _bulletDisplay;
+    private EquipBulletDisplay[] _bulletDisplay;
 
     private int equipID = 0;
 
-    private bool IsPush = false;
-
-
     public List<Bullet> MyBullet { set { _IDs = value; } }
 
-
-
-    // Start is called before the first frame update
     void Start()
     {
-        TryGetComponent(out _bulletDisplay);
         EquipmentInit();
-
-        _bulletDisplay.BulletInformationInit(EquipmentManager.Instance.Equipments);
+        _bulletDisplay.ToList().ForEach(c => c.SetBulletInformation());
         EquipBullets();
-        SelectBullet(equipID);//弾の選択状態の初期化
-        _bulletDisplay.MoveSelectFrame(equipID);
+        SelectBullet(equipID);
     }
 
     /// <summary>
@@ -61,36 +47,18 @@ public class BulletSelectController : MonoBehaviour
     }
 
     /// <summary>
-    /// 弾の選択UIの表示状態を切り替える
-    /// </summary>
-    public void OpenBulletMenu()
-    {
-        IsPush = !IsPush;
-        _anim.SetBool("IsPush", IsPush);
-        Vector3 scale = IsPush ? Vector3.zero : Vector3.one;
-        foreach (var item in UI) item.transform.localScale = scale;
-    }
-
-    /// <summary>
-    /// 入力値に応じて装備関数を実行する
-    /// </summary>
-    /// <param name="scrollValue"></param>
-    public void SelectBullet(float scrollValue)
-    {
-        if (!IsPush) return;
-        equipID = scrollValue > 0 ? (equipID == 0 ? 2 : equipID - 1) : (equipID == 2 ? 0 : equipID + 1);
-        SelectBullet(equipID);
-        _bulletDisplay.MoveSelectFrame(equipID);
-        if(!_IDs[equipID]) SelectBullet(scrollValue);
-    }
-
-    /// <summary>
     /// 弾を選択する
     /// </summary>
     /// <param name="bullet">装備する弾のインデックス</param>
     public void SelectBullet(int bullet)
     {
+        FindObjectOfType<BulletFire>().CurrentEquipID = bullet;
         _bulletFire.EquipBullet(_IDs[bullet]);
+        for (int i = 0; i < _bulletDisplay.Length; i++)
+        {
+            if (i == bullet) _bulletDisplay[i].Active();
+            else _bulletDisplay[i].NonActive();
+        }
     }
 
     /// <summary>

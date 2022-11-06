@@ -89,7 +89,6 @@ public class BulletLaserController : MonoBehaviour,ICustomSkillEvent
             EndHit = true;
             hitPosition = hit.point;    // Ray が当たった場所
             hitObject = hit.collider.gameObject;    // Ray が洗ったオブジェクト
-            Debug.Log(hitObject);
 
             if (!hitObject) hit = default;
             PlayHitSound(hitPosition);  // レーザーが当たった場所でヒット音を鳴らす
