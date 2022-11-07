@@ -34,6 +34,29 @@ public class DroneController : MonoBehaviour
     [SerializeField]
     GameObject[] _boostEffects;
 
+    [Header("バフ用の行動フィールド")]
+
+    [SerializeField]
+    float _turnoverNum = 10;
+
+    [SerializeField]
+    float _bottomHeight = 0.3f;
+
+    [SerializeField]
+    float _bottomRadius = 1.5f;
+
+    [SerializeField]
+    float _topRadius = 3f;
+
+    [SerializeField]
+    float _floatHeightPerLoop = 0.3f;
+
+    [SerializeField]
+    float _loopTime = 0.5f;
+
+    [SerializeField]
+    float _amplitude = 0.2f;
+
 
     DroneMode _droneMode = DroneMode.Idle;
     float distance;
@@ -45,14 +68,11 @@ public class DroneController : MonoBehaviour
     Animator _anim;
     public bool IsShooting = false;
 
-    //void Start()
-    //{
-    //}
     void Update()
     {
-        if(!IsShooting)LookPlayer();
+        if (!IsShooting) LookPlayer();
         //transform.position = new Vector3(transform.position.x, m_chaseTarget.transform.position.y + m_floatHeight, transform.position.z);
-        distance = Vector3.Distance(transform.position,m_chaseTarget.transform.position);
+        distance = Vector3.Distance(transform.position, m_chaseTarget.transform.position);
         //Debug.Log(distance);
         ChangeMode(IsShooting ? DroneMode.Shooting : distance >= _offset ? DroneMode.Chase : DroneMode.Idle);
         Chase(m_chaseTarget.transform.position);
@@ -116,6 +136,29 @@ public class DroneController : MonoBehaviour
     void LookPlayer()
     {
         _droneAnim.rotation = GameManager.Player.transform.rotation;
+    }
+
+    float time = 0;
+    Vector3 moveOrigin;
+    public void BuffMovement(float movetime)
+    {
+        time = 0;
+        moveOrigin = transform.position;
+        Vector3 turnStartPos = new Vector3(_bottomRadius * Mathf.Cos(anglePlus / 180f * Mathf.PI), _bottomHeight, _bottomRadius * Mathf.Sin(anglePlus / 180f * Mathf.PI));
+        transform.DOMove(turnStartPos + m_chaseTarget.transform.position, 1f).OnComplete(() => StartCoroutine(Turnover()));
+        IEnumerator Turnover()
+        {
+            while (time < movetime)
+            {
+                var height = _bottomHeight + (_floatHeightPerLoop * _turnoverNum/ movetime) * time;
+                var radius = _bottomRadius + ((_topRadius - _bottomRadius) / movetime) * time + Mathf.Cos(anglePlus / 180f + time * _turnoverNum / movetime) * _amplitude;
+                transform.position = new Vector3(radius * Mathf.Cos((anglePlus / 180f + time * _turnoverNum / movetime) * Mathf.PI) + m_chaseTarget.transform.position.x, height, radius * Mathf.Sin((anglePlus / 180f + time * _turnoverNum / movetime) * Mathf.PI) + m_chaseTarget.transform.position.z);
+                time += Time.deltaTime;
+                yield return null;
+            }
+            transform.DOMove(moveOrigin, 1f);
+        }
+        
     }
 
 
