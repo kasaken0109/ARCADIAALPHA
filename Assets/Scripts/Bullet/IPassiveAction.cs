@@ -9,5 +9,9 @@ public interface IPassiveAction
 
     void OnAwake();
     void Execute(GameObject set);
-    void Execute(int value = 0);
+    void Execute(float value = 0);
+
+    float GetEffectiveValue();
+
+    float GetEffectiveTime();
 }
