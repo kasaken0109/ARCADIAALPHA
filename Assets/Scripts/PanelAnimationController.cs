@@ -32,7 +32,6 @@ public sealed class PanelAnimationController : UIAnimationController
         {
             while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
             {
-                Debug.Log(Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor));
                 _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
                 yield return null;
             }
@@ -108,7 +107,8 @@ public sealed class PanelAnimationController : UIAnimationController
 
     public override void Active()
     {
-        base.Active();
+        Debug.Log("active");
+        //base.Active();
     }
 
     public override void NonActive()
