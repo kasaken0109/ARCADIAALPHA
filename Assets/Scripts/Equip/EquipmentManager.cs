@@ -26,6 +26,14 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    public GameObject CurrentSword => _currentSword;
+
+    GameObject _currentSword = default;
+    public void SetSword(GameObject sword)
+    {
+        _currentSword = sword;
+    }
+
     [HideInInspector]
     public Bullet[] Equipments = new Bullet[3];
 

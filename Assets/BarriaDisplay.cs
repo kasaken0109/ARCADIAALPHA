@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BarriaDisplay : MonoBehaviour,IDamage
 {
@@ -8,6 +9,8 @@ public class BarriaDisplay : MonoBehaviour,IDamage
     int _barriaHp = 2;
     [SerializeField]
     Transform _chasePoint = default;
+    [SerializeField]
+    UnityEvent _hitEvent;
 
     int hp = 0;
 
@@ -22,6 +25,7 @@ public class BarriaDisplay : MonoBehaviour,IDamage
             hp = 0;
             gameObject.SetActive(false);
         }
+        _hitEvent?.Invoke();
     }
 
     // Start is called before the first frame update
