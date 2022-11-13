@@ -60,7 +60,7 @@ public class EquipChangeManager : MonoBehaviour
             switch (equipSceneState)
             {
                 case EquipSceneState.EquipMain:
-                    var target = _sceneState == EquipSceneState.BulletSelect ? _uIAnimations[0] : _uIAnimations[1];
+                    var target = (_sceneState == EquipSceneState.BulletSelect || _sceneState == EquipSceneState.Default)? _uIAnimations[0] : _uIAnimations[1];
                     _defaultPanel[0].SetActive(true);
                     _panelAnimation.BackPanel();
                     _panelAnimation.SetEnableDisplayChange(false);
