@@ -22,16 +22,21 @@ public class EquipChangeManager : MonoBehaviour
     GameObject[] _defaultSelectObject = null;
     [SerializeField]
     GameObject[] _defaultPanel;
+    [SerializeField]
+    Animator _lonaDisplay;
 
     public EquipSceneState SceneState => _sceneState;
     EquipSceneState _sceneState = EquipSceneState.EquipMain;
     EventSystem eventSystem;
     GameObject prevSelected = null;
+    DisplayCameraSwitcher cameraSwitcher;
 
     // Start is called before the first frame update
     void Awake()
     {
         eventSystem = FindObjectOfType<EventSystem>();
+        cameraSwitcher = FindObjectOfType<DisplayCameraSwitcher>();
+        cameraSwitcher.SetFocus(FocusState.Lona);
         SetState(3);
     }
     public void SetState(int equipId)
@@ -44,10 +49,13 @@ public class EquipChangeManager : MonoBehaviour
             {
                 case EquipSceneState.Default:
                     var prev = _sceneState == EquipSceneState.EquipMain ? 2 : 3;
-                    EventSystem.current.SetSelectedGameObject(_defaultSelectObject[3]);
+                    if (_sceneState == EquipSceneState.SwordSelect) _lonaDisplay.SetBool("IsDisplay", false);
+                    if (_sceneState == EquipSceneState.EquipMain) cameraSwitcher.SetFocus(FocusState.Lona);
+                        EventSystem.current.SetSelectedGameObject(_defaultSelectObject[3]);
                     _uIAnimations[prev].NonActive();
                     break;
                 case EquipSceneState.SwordSelect:
+                    _lonaDisplay.SetBool("IsDisplay", true);
                     _defaultPanel[1].SetActive(true);
                     _uIAnimations[3].Active();
                     break;
@@ -64,6 +72,7 @@ public class EquipChangeManager : MonoBehaviour
                     _defaultPanel[0].SetActive(true);
                     _panelAnimation.BackPanel();
                     _panelAnimation.SetEnableDisplayChange(false);
+                    if(_sceneState == EquipSceneState.Default)cameraSwitcher.SetFocus(FocusState.Drone);
                     target.NonActive();
                     EventSystem.current.SetSelectedGameObject(prevSelected == null ? _defaultSelectObject[equipId] : prevSelected);
 
