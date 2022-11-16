@@ -12,7 +12,7 @@ public class PlayerAttackSpeedup : IPassiveAction
     float _effectiveTime = 5f;
     public bool IsEnd { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    public void Execute(int value = 0)
+    public void Execute(float value = 0)
     {
         PassiveActionCaller.Instance.AttackSpeedUp(_attackSpeedUp, _effectiveTime);
     }
@@ -29,5 +29,15 @@ public class PlayerAttackSpeedup : IPassiveAction
     public void Execute(GameObject set)
     {
         throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveValue()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveTime()
+    {
+        return 0;
     }
 }

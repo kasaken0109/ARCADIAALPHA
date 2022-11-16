@@ -17,7 +17,7 @@ public class AddSlipDamage:IPassiveAction
     float _slipDuraration = 10f;
     public bool IsEnd { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    public void Execute(int value = 0)
+    public void Execute(float value = 0)
     {
         EnemyBossManager.Instance.AddSlipDamage(_slipDamage, _slipInterval, _slipDuraration);
     }
@@ -28,6 +28,16 @@ public class AddSlipDamage:IPassiveAction
 
     public void Execute(GameObject set)
     {
-        set.GetComponentInParent<EnemyBossManager>().AddSlipDamage(_slipDamage, _slipInterval, _slipDuraration);
+        set.GetComponentInParent<IFlameBurn>().AddSlipDamage(_slipDamage, _slipInterval, _slipDuraration);
+    }
+
+    public float GetEffectiveValue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public float GetEffectiveTime()
+    {
+        return 0;
     }
 }

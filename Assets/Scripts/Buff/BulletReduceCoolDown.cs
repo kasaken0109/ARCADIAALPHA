@@ -10,7 +10,7 @@ public class BulletReduceCoolDown : IPassiveAction
 
     public bool IsEnd { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    public void Execute(int value = 0)
+    public void Execute(float value = 0)
     {
         PassiveActionCaller.Instance.ReduceEnergy(_reduceRate);
     }
@@ -27,5 +27,15 @@ public class BulletReduceCoolDown : IPassiveAction
     public void Execute(GameObject set)
     {
         throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveValue()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveTime()
+    {
+        return 0;
     }
 }

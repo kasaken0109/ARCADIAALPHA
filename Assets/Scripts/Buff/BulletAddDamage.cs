@@ -9,7 +9,7 @@ public class BulletAddDamage: IPassiveAction
     float _attackUp = 1.5f;
     public bool IsEnd { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    public void Execute(int value = 0)
+    public void Execute(float value = 0)
     {
         PassiveActionCaller.Instance.AddBulletDamage(_attackUp);
     }
@@ -27,5 +27,15 @@ public class BulletAddDamage: IPassiveAction
     public void Execute(GameObject set)
     {
         throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveValue()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public float GetEffectiveTime()
+    {
+        return 0;
     }
 }

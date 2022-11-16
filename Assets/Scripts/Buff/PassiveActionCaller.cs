@@ -47,31 +47,26 @@ public class PassiveActionCaller : MonoBehaviour
     public void PlayerAttackUp(float attackupRate, float time)
     {
         playerAttack.ChangeAttackPower(attackupRate, time);
-        Debug.Log("Call1");
     }
 
     public void PlayerDefenceUp(float defenceupRate, float time)
     {
         playerManager.ChangeDefenceValue(defenceupRate, time);
-        Debug.Log("Call1");
     }
 
     public void DodgeDistanceUp(float distanceRate, float time)
     {
         playerControll.ChangeDodgeDistance(distanceRate, time);
-        Debug.Log("Call2");
     }
 
     public void AttackSpeedUp(float speedUpRate,float time)
     {
         playerControll.ChangeAttackspeedRate(speedUpRate, time);
-        Debug.Log("Call3");
     }
 
     public void InvisibleTimeUp(float extentionRate, float time)
     {
         playerManager.ChangeInvisibleTime(extentionRate, time);
-        Debug.Log("Call4");
     }
 
     public void ReduceEnergy(float reduceRate)
@@ -87,5 +82,10 @@ public class PassiveActionCaller : MonoBehaviour
     public void AddBulletDamage(float addRate)
     {
         bulletFire.ChangeBulletDamage(addRate);
+    }
+
+    public void AddStun(GameObject target)
+    {
+        target.GetComponentInParent<IStun>().StunChecker(1);
     }
 }
