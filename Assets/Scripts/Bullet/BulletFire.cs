@@ -46,14 +46,7 @@ public class BulletFire : MonoBehaviour
 
     [SerializeField]
     [Tooltip("クールダウン表示用UI")]
-    Image[] _cooldownUI = default;
-
-    [SerializeField]
-    GameObject _cooldownInformation;
-
-    [SerializeField]
-    [Tooltip("弾の情報を表示するUI")]
-    BulletInformation m_bullet;
+    EquipBulletDisplay[] _bulletDisplay = default;
 
     /// <summary>現在のエネルギー値</summary>
     float stanceValue = 0.5f;
@@ -72,18 +65,15 @@ public class BulletFire : MonoBehaviour
     /// <summary>弾の消費エネルギー(可変)</summary>
     BufferParameter bulletEnergy;
 
-    /// <summary>現在のクールダウン表示</summary>
-    Image currentCoolDown = null;
+    public bool CanFire => canShoot;
+    public int CurrentEquipID { set => _currentEquipID = value; }
+
+    int _currentEquipID = 0;
 
     DroneController droneController;
     void Start()
     {
         m_stance.fillAmount = 0.5f;
-        foreach (var item in _cooldownUI)
-        {
-            item.fillAmount = 0;
-        }
-        _cooldownInformation.SetActive(false);
         call = gameObject;
         TryGetComponent(out droneController);
     }
@@ -112,6 +102,7 @@ public class BulletFire : MonoBehaviour
         //銃弾を生成
         if (stanceValue >= equip.ConsumeStanceValue)
         {
+            //canShoot = true;
             BulletLaserController laser;
             PlayerBulletController bullet;
             LayserModuleController layserModule;
@@ -120,7 +111,7 @@ public class BulletFire : MonoBehaviour
             //Debug.Log(target.name);
             var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);
             var targetpos = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
-                instance.transform.LookAt(targetpos);
+            instance.transform.LookAt(targetpos);
             droneController.IsShooting = true;
             droneController.LookEnemy(target);
             switch (equip.BulletType)
@@ -142,20 +133,38 @@ public class BulletFire : MonoBehaviour
                     if (instance.TryGetComponent(out bullet)) bullet.Damage = Mathf.CeilToInt(bulletDamage.Value);
                     break;
                 case BulletType.Skill:
-                    equip.PassiveAction.Execute();
+                    equip.PassiveAction?.Execute();
+                    if (equip.BulletCustomType == BulletCustomType.Buff) droneController.BuffMovement(equip.AttackDuraration);
+                    //バフのエフェクトを生成
+                    instance.transform.SetParent(m_passiveEffectPoint);
+                    instance.transform.localPosition = Vector3.zero;
+                    instance.transform.localRotation = Quaternion.identity;
                     if (instance.TryGetComponent(out laser)) laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
-                    FindObjectOfType<PlayerManager>().AddDamage(bulletDamage.Value < 0 ?Mathf.CeilToInt(bulletDamage.Value) : 0, ref call);
-                    Destroy(instance, 5);
+                    FindObjectOfType<PlayerManager>().AddDamage(bulletDamage.Value < 0 ? Mathf.CeilToInt(bulletDamage.Value) : 0, ref call);
+                    var addtime = equip.PassiveAction != null ? equip.PassiveAction.GetEffectiveTime() : 0;
+                    if (!equip.IsPermanence) Destroy(instance, equip.AttackDuraration + addtime);
+                    else
+                    {
+                        var effectDisplay = instance.GetComponent<EffectDelayDisplayer>();
+                        effectDisplay.DelayDestroy = equip.AttackDuraration + addtime;
+                    }
                     break;
                 default:
                     break;
             }
-            if (equip.passiveSkill != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Buf) instance.GetComponent<ICustomSkillEvent>().CustomSkillEvent += (x) => equip.PassiveSkill.CustomSkillAction.Execute(x);
+            if (equip.passiveSkill != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Buf)
+            {
+                instance.GetComponent<ICustomSkillEvent>().CustomSkillEvent += (x) => equip.PassiveSkill.CustomSkillAction.Execute(x);
+            }
             //SoundManager.Instance.PlayShoot();
             stanceValue -= bulletEnergy.Value;
             m_stance.fillAmount = stanceValue;
         }
-        //else SoundManager.Instance.PlayEmptyBullet();
+        else
+        {
+            //canShoot = false;
+            //SoundManager.Instance.PlayEmptyBullet();
+        }
         //パッシブ用のコストがある場合パッシブを発動
         StartCoroutine(CoolDown());
     }
@@ -168,23 +177,10 @@ public class BulletFire : MonoBehaviour
     {
         canShoot = false;
         yield return new WaitForSeconds(equip.AttackDuraration);
-        _cooldownInformation.SetActive(true);
-        _cooldownUI[0].fillAmount = 1;
-        yield return null;// new WaitForSeconds(cooldownTime.Value);
-        DOTween.To(
-                    () => _cooldownUI[0].fillAmount,
-                    (x) => _cooldownUI[0].fillAmount = x,
-                    0,
-                    cooldownTime.Value
-                   )
-                .OnComplete(() =>
-                {
-                    _cooldownInformation.SetActive(false);
-                    canShoot = true;
-                });
-        yield return new WaitForSeconds(0.5f);
         droneController.IsShooting = false;
-
+        _bulletDisplay[_currentEquipID].CoolDown(cooldownTime.Value);
+        yield return new WaitForSeconds(cooldownTime.Value);
+        canShoot = true;
     }
 
     /// <summary>
@@ -197,9 +193,8 @@ public class BulletFire : MonoBehaviour
         cooldownTime = new BufferParameter(equip.Delay);
         bulletDamage = new BufferParameter(equip.Damage);
         bulletEnergy = new BufferParameter(equip.ConsumeStanceValue);
-        if(equip.PassiveSkill && equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute();
-        m_bullet._NameDisplay.sprite= bullet.EquipImage;
-        m_bullet._skillDisplay.sprite = bullet.passiveSkill ? bullet.passiveSkill.ImageBullet : null;
+        var value = equip.PassiveAction != null? equip.PassiveAction.GetEffectiveValue() : 0;
+        if(equip.PassiveSkill && equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute(value);
 
         //パッシブスキルセット時のコストを計算
         consumeValue = equip.ConsumeStanceValue + (equip.PassiveSkill != null ? equip.PassiveSkill.ConsumeCost : 0); 
