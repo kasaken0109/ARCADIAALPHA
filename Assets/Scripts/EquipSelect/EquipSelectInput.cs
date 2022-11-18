@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class EquipSelectInput : MonoBehaviour
 {
@@ -19,27 +20,44 @@ public class EquipSelectInput : MonoBehaviour
     PlayerInput _playerInput;
 
     PanelAnimationController _animController;
+    EventSystem eventSystem;
+    EquipSwordController _swordController;
+    EquipChangeManager _equipChangeManager;
+    [SerializeField]
+    SizeRescalerController _sizeRescalerController;
 
     void Awake()
     {
         TryGetComponent(out _animController);
+        eventSystem = FindObjectOfType<EventSystem>();
+        _swordController = FindObjectOfType<EquipSwordController>();
+        _equipChangeManager = FindObjectOfType<EquipChangeManager>();
+        //_sizeRescalerController = FindObjectOfType<SizeRescalerController>();
     }
     private void OnEnable()
     {
-        //_playerInput.actions["Back"].started += OnBackScene;
-        //_playerInput.actions["GoQuest"].started += OnGoQuest;
+        _playerInput.actions["Back"].started += OnBackScene;
+        _playerInput.actions["GoQuest"].started += OnGoQuest;
         _playerInput.actions["Hold"].started += OnMovePanel;
         _playerInput.actions["Hold"].performed += OnHold;
         _playerInput.actions["Hold"].canceled += OnBackPanel;
+        _playerInput.actions["Submit"].started += OnSubmit;
+        _playerInput.actions["Equip"].started += OnEquip;
     }
 
     private void OnDisable()
     {
-        //_playerInput.actions["Back"].started -= OnBackScene;
-        //_playerInput.actions["GoQuest"].started -= OnGoQuest;
+        _playerInput.actions["Back"].started -= OnBackScene;
+        _playerInput.actions["GoQuest"].started -= OnGoQuest;
         _playerInput.actions["Hold"].started -= OnMovePanel;
         _playerInput.actions["Hold"].performed -= OnHold;
         _playerInput.actions["Hold"].canceled -= OnBackPanel;
+        _playerInput.actions["Submit"].started -= OnSubmit;
+        _playerInput.actions["Equip"].started -= OnEquip;
+    }
+
+    private void Start()
+    {
     }
 
     /// <summary>
@@ -48,7 +66,34 @@ public class EquipSelectInput : MonoBehaviour
     /// <param name="obj"></param>
     private void OnBackScene(InputAction.CallbackContext obj)
     {
-        _back.onClick?.Invoke();
+        if (_equipChangeManager)
+        {
+            switch (_equipChangeManager.SceneState)
+            {
+                case EquipSceneState.EquipMain:
+                    _equipChangeManager.SetState(3);
+                    break;
+                case EquipSceneState.BulletSelect:
+                    _equipChangeManager.SetState(0);
+                    break;
+                case EquipSceneState.SkillSelect:
+                    _equipChangeManager.SetState(0);
+                    break;
+                case EquipSceneState.Default:
+                    _back.onClick?.Invoke();
+                    break;
+                case EquipSceneState.SwordSelect:
+                    _equipChangeManager.SetState(3);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            _back.onClick?.Invoke();
+        }
+        
     }
 
     /// <summary>
@@ -73,5 +118,17 @@ public class EquipSelectInput : MonoBehaviour
     private void OnBackPanel(InputAction.CallbackContext obj)
     {
         _animController.HidePanal();
+    }
+
+    private void OnSubmit(InputAction.CallbackContext obj)
+    {
+       var button =  eventSystem.currentSelectedGameObject.GetComponent<Button>();
+    }
+
+    private void OnEquip(InputAction.CallbackContext obj)
+    {
+        var m = obj.ReadValue<float>();
+        _swordController.SetWeapon(m > 0);
+        _sizeRescalerController.SelectSwordDisplay(m > 0);
     }
 }

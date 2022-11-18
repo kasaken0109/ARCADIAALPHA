@@ -20,6 +20,18 @@ public class AttackcolliderController : MonoBehaviour
     [Tooltip("ヒットサウンド")]
     AudioClip m_hit;
 
+    [SerializeField]
+    GameObject _attackCallObject = default;
+
+    [SerializeField]
+    int id = 0;
+
+    UnityAction<GameObject> _onHit;
+
+    public UnityAction<GameObject> OnHit { set => _onHit = value; }
+
+    public int ID => id; 
+
     /// <summary>呼ぶオブジェクト</summary>
     GameObject call;
     /// <summary>攻撃が有効かどうか</summary>
@@ -29,12 +41,14 @@ public class AttackcolliderController : MonoBehaviour
     /// <summary>攻撃力</summary>
     int attackPower = 0;
 
+    const int DefaultDamage = 50;
+
     public int AttackPower {set => attackPower = value; }
 
     void Start()
     {
         canHit = true;
-        call = gameObject;
+        call = _attackCallObject;
     }
 
     private void OnEnable()
@@ -47,14 +61,15 @@ public class AttackcolliderController : MonoBehaviour
         if (!canHit) return;//連続ヒットを防止する
         if (other.CompareTag(m_opponentTagName))
         {
+            _onHit?.Invoke(other.gameObject);
             //ダメージを与える
             var idmg = other.gameObject.GetComponentInParent<IDamage>();
             idmg = idmg == null ? other.gameObject.GetComponent<IDamage>() : idmg;
-            idmg.AddDamage(attackPower, ref call);
+            idmg.AddDamage(attackPower == 0 ? DefaultDamage : attackPower, ref call);
 
             //ヒット音、エフェクトを再生する
             if (m_hit)SoundManager.Instance.PlayHit(m_hit,gameObject.transform.position);
-            if(m_hitEffect) Instantiate(m_hitEffect, other.ClosestPoint(transform.position), GameManager.Player.transform.rotation);
+            if(m_hitEffect) Instantiate(m_hitEffect, other.ClosestPoint(transform.position), m_hitEffect.transform.rotation);
 
             //ヒット処理を完了したとみなす
             canHit = false;

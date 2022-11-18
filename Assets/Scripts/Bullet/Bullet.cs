@@ -19,6 +19,9 @@ public class Bullet : ScriptableObject
     float _attackDuraration = 0;
 
     [SerializeField]
+    bool _isPermanence = false;
+
+    [SerializeField]
     [Tooltip("クールダウンタイム")]
     float m_delay = 0.2f;
 
@@ -53,12 +56,17 @@ public class Bullet : ScriptableObject
     [SerializeField]
     private Sprite _equipImage = default;
 
+    [SerializeField]
+    private Sprite _equipCoolDownImage = default;
+
     int m_bulletID = 0;
     public GameObject MyBullet => m_bullet;
 
     public int Damage => m_damage;
 
     public float AttackDuraration => _attackDuraration;
+
+    public bool IsPermanence => _isPermanence;
 
     public IPassiveAction PassiveAction => _passiveAction;
 
@@ -80,6 +88,9 @@ public class Bullet : ScriptableObject
     public Sprite Image => m_image;
 
     public Sprite EquipImage => _equipImage;
+
+    public Sprite EquipCoolDownImage => _equipCoolDownImage;
+
 
     public string ExplainText => m_explainText;
 }
