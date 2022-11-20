@@ -16,9 +16,14 @@ public class PlayerAttackController : MonoBehaviour
     [SerializeReference, SubclassSelector]
     ICondition _start = default;
 
+    [SerializeField]
+    float _endDuraration = 1f;
+
     Animator _anim;
 
     AttackSetController _attackSetController = default;
+
+    PlayerMoveController _playerMove;
 
     AttackSet[] _currentSets;
 
@@ -28,10 +33,13 @@ public class PlayerAttackController : MonoBehaviour
 
     int playIndex = 0;
 
+    float endTimer = 0;
+
     bool isPlayFailureState = false;
 
     void Start()
     {
+        TryGetComponent(out _playerMove);
         TryGetComponent(out _attackSetController);
         TryGetComponent(out _anim);
         ChangeAttackSet(_attackNormalSets);
@@ -51,10 +59,27 @@ public class PlayerAttackController : MonoBehaviour
                 _anim.CrossFade(_currentSets[playIndex]._NextStateName,0,0,0,0.3f);
                 //_anim.Play(_currentSets[playIndex]._NextStateName);
                 current.Reset();
-                playIndex = playIndex == _currentSets.Length - 1 ? 0 : playIndex + 1;
-                current = _currentSets[playIndex]._condition;
-                current.IsSuccess = false;
-                current.Reset();
+                if(playIndex == _currentSets.Length - 1)
+                {
+                    playIndex = 0;
+                    if (endTimer < _endDuraration)
+                    {
+                        endTimer += Time.deltaTime;
+                    }
+                    else
+                    {
+                        current = _currentSets[playIndex]._condition;
+                        current.IsSuccess = false;
+                        current.Reset();
+                    }
+                }
+                else
+                {
+                    playIndex += 1; 
+                    current = _currentSets[playIndex]._condition;
+                    current.IsSuccess = false;
+                    current.Reset();
+                }
                 break;
             case ConditionState.Failure:
                 if (!isPlayFailureState) {
@@ -84,6 +109,7 @@ public class PlayerAttackController : MonoBehaviour
                 _currentSets[i]._condition.Reset();
             }
         }
+        playIndex = 0;
         _currentSets = set;
         current = set[0]._condition;
     }
