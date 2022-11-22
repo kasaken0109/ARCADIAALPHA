@@ -26,14 +26,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8289241599597392337}
-  m_LocalRotation: {x: -0, y: -0, z: 0.0069813156, w: 0.9999757}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.4945942, y: 7.816081e-17, z: -6.3102}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3528676373458614174}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -0, y: -0, z: 0.8000063}
+  m_LocalEulerAnglesHint: {x: -0, y: -0, z: 0}
 --- !u!135 &8289241599597392343
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -61,6 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_bulletSpeed: 20
   _effect: {fileID: 6105105234082694942, guid: f82bbe694cf41fd43893a81ddb8e6df5, type: 3}
+  _unHitEffect: {fileID: 5937012291382834360, guid: ffb67794eda5e2b4f9bb1edcf492c19b, type: 3}
 --- !u!54 &2527243059222272986
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -69,10 +70,10 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8289241599597392337}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.4
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
