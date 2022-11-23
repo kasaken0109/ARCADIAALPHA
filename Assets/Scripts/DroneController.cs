@@ -25,14 +25,12 @@ public class DroneController : MonoBehaviour
     [SerializeField]
     [Tooltip("追跡時間")]
     float m_chaseTime = 2f;
-    [SerializeField]
-    [Tooltip("回転時間")]
-    float m_chaseLookTime = 0.5f;
-    [SerializeField]
-    [Tooltip("浮遊の高さ")]
-    float m_floatHeight = 0.7f;
+
     [SerializeField]
     GameObject[] _boostEffects;
+
+    [SerializeField]
+    GameObject _movementEffect = default;
 
     [Header("バフ用の行動フィールド")]
 
@@ -52,13 +50,8 @@ public class DroneController : MonoBehaviour
     float _floatHeightPerLoop = 0.3f;
 
     [SerializeField]
-    float _loopTime = 0.5f;
-
-    [SerializeField]
     float _amplitude = 0.2f;
 
-
-    DroneMode _droneMode = DroneMode.Idle;
     float distance;
 
     [SerializeField]
@@ -67,15 +60,16 @@ public class DroneController : MonoBehaviour
     [SerializeField]
     Animator _anim;
     public bool IsShooting = false;
+    const float FloatHeight = 1.5f;
 
-    void Update()
+    void FixedUpdate()
     {
         if (!IsShooting) LookPlayer();
         //transform.position = new Vector3(transform.position.x, m_chaseTarget.transform.position.y + m_floatHeight, transform.position.z);
         distance = Vector3.Distance(transform.position, m_chaseTarget.transform.position);
         //Debug.Log(distance);
         ChangeMode(IsShooting ? DroneMode.Shooting : distance >= _offset ? DroneMode.Chase : DroneMode.Idle);
-        Chase(m_chaseTarget.transform.position);
+        if(!IsShooting) Chase(m_chaseTarget.transform.position);
     }
 
     /// <summary>
@@ -88,7 +82,7 @@ public class DroneController : MonoBehaviour
             0,
             m_chaseOffset.x * Mathf.Sin(anglePlus / 180f * Mathf.PI)
             ) ;
-        transform.DOMove(new Vector3(destination.x, 1.5f, destination.z),m_chaseTime);
+        transform.DOMove(new Vector3(destination.x, FloatHeight, destination.z),m_chaseTime);
     }
 
     /// <summary>
@@ -140,23 +134,28 @@ public class DroneController : MonoBehaviour
 
     float time = 0;
     Vector3 moveOrigin;
-    public void BuffMovement(float movetime)
+    public void BuffMovement(float moveTime)
     {
+        var movementTime = moveTime - 1f;
         time = 0;
         moveOrigin = transform.position;
         Vector3 turnStartPos = new Vector3(_bottomRadius * Mathf.Cos(anglePlus / 180f * Mathf.PI), _bottomHeight, _bottomRadius * Mathf.Sin(anglePlus / 180f * Mathf.PI));
-        transform.DOMove(turnStartPos + m_chaseTarget.transform.position, 1f).OnComplete(() => StartCoroutine(Turnover()));
+        transform.DOMove(turnStartPos + m_chaseTarget.transform.position, 0.5f).OnComplete(() => {
+            StartCoroutine(Turnover());
+            _movementEffect.SetActive(true);
+        });
         IEnumerator Turnover()
         {
-            while (time < movetime)
+            while (time < movementTime)
             {
-                var height = _bottomHeight + (_floatHeightPerLoop * _turnoverNum/ movetime) * time;
-                var radius = _bottomRadius + ((_topRadius - _bottomRadius) / movetime) * time + Mathf.Cos(anglePlus / 180f + time * _turnoverNum / movetime) * _amplitude;
-                transform.position = new Vector3(radius * Mathf.Cos((anglePlus / 180f + time * _turnoverNum / movetime) * Mathf.PI) + m_chaseTarget.transform.position.x, height, radius * Mathf.Sin((anglePlus / 180f + time * _turnoverNum / movetime) * Mathf.PI) + m_chaseTarget.transform.position.z);
+                var height = _bottomHeight + (_floatHeightPerLoop * _turnoverNum/ movementTime) * time;
+                var radius = _bottomRadius + ((_topRadius - _bottomRadius) / movementTime) * time + Mathf.Cos(anglePlus / 180f + time * _turnoverNum / movementTime) * _amplitude;
+                transform.position = new Vector3(radius * Mathf.Cos((anglePlus / 180f + time * _turnoverNum / movementTime) * Mathf.PI) + m_chaseTarget.transform.position.x, height, radius * Mathf.Sin((anglePlus / 180f + time * _turnoverNum / movementTime) * Mathf.PI) + m_chaseTarget.transform.position.z);
+                _droneAnim.LookAt(GameManager.Player.transform.position + new Vector3(0, height, 0));
                 time += Time.deltaTime;
                 yield return null;
             }
-            transform.DOMove(moveOrigin, 1f);
+            transform.DOMove(moveOrigin, 0.5f).OnComplete(() => _movementEffect.SetActive(false));
         }
         
     }
