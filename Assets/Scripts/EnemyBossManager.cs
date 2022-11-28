@@ -8,13 +8,19 @@ using BehaviourAI;
 /// <summary>
 /// 敵の状態を管理する
 /// </summary>
-public class EnemyBossManager : MonoBehaviour, IDamage
+public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnTargetable
 {
     public static EnemyBossManager Instance { get; private set; }
 
     [SerializeField]
     [Tooltip("HP")]
     int m_hp = 100;
+
+    [SerializeField]
+    GameObject _lockOnIcon = default;
+
+    [SerializeField]
+    Transform _camPoint = default;
 
     [SerializeField]
     [Tooltip("怯み値")]
@@ -52,7 +58,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage
     [SerializeField]
     Image hpSlider;
 
-    bool IsCritical = false;//特殊攻撃のいフラグ
+    bool IsCritical = false;//特殊攻撃のフラグ
 
     int maxHp;
     int hitRate = 0;//怯み値
@@ -60,7 +66,6 @@ public class EnemyBossManager : MonoBehaviour, IDamage
     int count = 0;//特殊攻撃の回数
     int stun;
     float hitstopRate = 0.5f;
-    float hitSpeed = 1f;//ヒットストップのスピード
     const float coefficient = 8f;
     const float actionHpRateHalf = 0.5f;
     const float actionHpRateLittle = 0.2f;
@@ -115,7 +120,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage
                 () => hpSlider.fillAmount, // getter
                 x => hpSlider.fillAmount = x, // setter
                 (float)(float)m_hp / maxHp, // ターゲットとなる値
-                1f  // 時間（秒）
+                0.3f  // 時間（秒）
                 ).SetEase(Ease.OutCubic);
             hitRate += damage;
             if(hitRate >= m_rate)
@@ -134,7 +139,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage
                 () => hpSlider.fillAmount, // getter
                 x => hpSlider.fillAmount = x, // setter
                 (float)(float)0, // ターゲットとなる値
-                1f  // 時間（秒）
+                0.3f  // 時間（秒）
                 ).SetEase(Ease.OutCubic);
             Instantiate(m_deathBody,this.transform.position,this.transform.rotation);
             FindObjectOfType<CameraController>().RetargetTargetCam();
@@ -191,9 +196,8 @@ public class EnemyBossManager : MonoBehaviour, IDamage
 
     }
 
-    void StunChecker(int value)
+    public void StunChecker(int value)
     {
-        Debug.Log(stun);
         stun = stun >= value ? stun -= value : 0;
         if (stun == 0)
         {
@@ -207,7 +211,9 @@ public class EnemyBossManager : MonoBehaviour, IDamage
         IEnumerator StunCoroutine()
         {
             m_stunEffect.SetActive(true);
+            GetComponent<CreatureAI>().enabled = false;
             yield return new WaitForSeconds(m_stunTime);
+            GetComponent<CreatureAI>().enabled = true;
             m_stunEffect.SetActive(false);
         }
         StartCoroutine(StunCoroutine());
@@ -219,4 +225,19 @@ public class EnemyBossManager : MonoBehaviour, IDamage
     }
 
     public void SpawnEffects() => m_sandEffect.SetActive(true);
+
+    public void ShowLockOnIcon()
+    {
+        _lockOnIcon.SetActive(true);
+    }
+
+    public Transform GetCamPoint()
+    {
+        return _camPoint.transform;
+    }
+
+    public void HideLockOnIcon()
+    {
+        _lockOnIcon.SetActive(false);
+    }
 }
