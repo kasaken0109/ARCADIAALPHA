@@ -8,6 +8,8 @@ public class IndicatorController : MonoBehaviour
     [SerializeField]
     [Tooltip("–îˆó‚ª“®‚­–Ú“I’n")]
     Vector3 root = default;
+    [SerializeField]
+    Transform _startPos = default;
 
     float _lookAngle;
     string _targetName = "Gate";
@@ -34,9 +36,9 @@ public class IndicatorController : MonoBehaviour
     void MoveAnim()
     {
         move = DOTween.Sequence();
-        move.Append(_rect.transform.DOMove(_player.transform.position + root, moveDuraration))
-            .Append(_rect.transform.DOMove(_player.transform.position, moveDuraration))
-            .SetLoops(-1);
+        move.Append(_rect.transform.DOLocalMove(_startPos.position + root, moveDuraration))
+            //.Append(_rect.transform.DOMove(_player.transform.position, moveDuraration))
+            .SetLoops(-1,LoopType.Yoyo);
         move.Play();
     }
 
