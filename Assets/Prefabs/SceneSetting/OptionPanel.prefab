@@ -1083,7 +1083,6 @@ GameObject:
   - component: {fileID: 8302828368183954032}
   - component: {fileID: 8302828368183954029}
   - component: {fileID: 8302828368183954030}
-  - component: {fileID: 356512392}
   m_Layer: 5
   m_Name: MovePanel
   m_TagString: Untagged
@@ -1154,19 +1153,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &356512392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8302828368183954033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f68ffb2c25c72b438174fcc17510273, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_buttonField: []
 --- !u!1 &8302828368394141216
 GameObject:
   m_ObjectHideFlags: 0
@@ -1318,7 +1304,6 @@ GameObject:
   - component: {fileID: 8302828368648320538}
   - component: {fileID: 8302828368648320541}
   - component: {fileID: 4002416065708662251}
-  - component: {fileID: 746371871}
   - component: {fileID: 746371872}
   m_Layer: 5
   m_Name: OptionPanel
@@ -1497,36 +1482,6 @@ MonoBehaviour:
   _se: {fileID: 2010408316790920034}
   _bgm: {fileID: 972350316235821432}
   _selectable: {fileID: 0}
---- !u!114 &746371871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8302828368648320540}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: dccd0a51bf9c56346948daab46d5bb40, type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Menu
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!114 &746371872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1539,8 +1494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b64d02def1b8327479a2db6c24ee5ff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerInput: {fileID: 746371871}
-  _playerControll: {fileID: 0}
+  _playerInput: {fileID: 0}
 --- !u!1 &8302828368977057740
 GameObject:
   m_ObjectHideFlags: 0
