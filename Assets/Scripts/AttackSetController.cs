@@ -37,7 +37,7 @@ public class AttackSetController : MonoBehaviour
         foreach (var item in _stateController)
         {
             item.SetStateEnterAction(() =>_playerMove.SetMoveActive(false));
-            item.SetStateExitAction(() => _playerMove.SetMoveActive(true));
+            item.SetStateExitAction(() => { _playerMove.SetMoveActiveDelay(true, 0f); });
         }
         foreach (var item in _jumpAttackStates)
         {
