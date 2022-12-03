@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Linq;
+using UniRx;
 
 /// <summary>
 /// 弾の処理タイプ
@@ -48,6 +49,10 @@ public class BulletFire : MonoBehaviour
     [Tooltip("クールダウン表示用UI")]
     EquipBulletDisplay[] _bulletDisplay = default;
 
+    [SerializeField]
+    GameObject _diaplayHint = default;
+    [SerializeField]
+    float _waitUntilHintDisplay = 10f;
     /// <summary>現在のエネルギー値</summary>
     float stanceValue = 0.5f;
     /// <summary>装備中の弾の発射時のエネルギー値</summary>
@@ -65,26 +70,61 @@ public class BulletFire : MonoBehaviour
     /// <summary>弾の消費エネルギー(可変)</summary>
     BufferParameter bulletEnergy;
 
+    readonly ReactiveProperty<float> _ep = new ReactiveProperty<float>(0);
+
     public bool CanFire => canShoot;
     public int CurrentEquipID { set => _currentEquipID = value; }
 
     int _currentEquipID = 0;
 
+    const float InitialEp = 0.5f;
+
+    float nonInputTimer = 0f;
+
+    bool IsTimerActive = true;
+
     DroneController droneController;
     void Start()
     {
-        m_stance.fillAmount = 0.5f;
+        _ep.Where(x => x >= 1f).Subscribe(x => TimerUpdate()).AddTo(this);
+        Observable.EveryUpdate().Subscribe((x) => 
+        {
+            _diaplayHint.SetActive(nonInputTimer >= _waitUntilHintDisplay);
+            IsTimerActive = _ep.Value >= 1f; 
+        }).AddTo(this);
+        
+        _ep.Subscribe((x) => {
+            m_stance.fillAmount = x; 
+            if(equip != null) m_line.fillAmount = x - consumeValue;
+        }).AddTo(this);
+        _ep.Value = InitialEp;
         call = gameObject;
         TryGetComponent(out droneController);
     }
 
-    // Update is called once per frame
-    void Update()
+    void TimerUpdate()
     {
-        if (GameManager.Instance.GameStatus == GameState.STOP) return;//一時停止中には射撃不可
-        stanceValue = m_stance.fillAmount;
+        IEnumerator Update()
+        {
+            yield return new WaitForSeconds(0.5f);
+            while (IsTimerActive)
+            {
+                nonInputTimer += Time.deltaTime;
+                yield return null;
+            }
+            nonInputTimer = 0;
+        }
+        StartCoroutine(Update());
+    }
 
-        if(equip != null)m_line.fillAmount = m_stance.fillAmount - consumeValue;
+    /// <summary>
+    /// スキルの発動に必要なエネルギーを追加する
+    /// </summary>
+    /// <param name="value">エネルギーの回収率(0~1)</param>
+    public void AddStanceValue(float value)
+    {
+        if (value + _ep.Value < 1) _ep.Value = _ep.Value + value;
+        else _ep.Value = 1f;
     }
 
     /// <summary>
@@ -92,6 +132,7 @@ public class BulletFire : MonoBehaviour
     /// </summary>
     public void ShootBullet()
     {
+        if (GameManager.Instance.GameStatus == GameState.STOP) return;//一時停止中には射撃不可
         if (!canShoot)
         {
             //SoundManager.Instance.PlayEmptyBullet();
@@ -108,8 +149,7 @@ public class BulletFire : MonoBehaviour
             LayserModuleController layserModule;
             var target = GameObject.FindGameObjectsWithTag("Enemy")
                 .Single(c => c.GetComponent<HitPosRetention>());
-            //Debug.Log(target.name);
-            var instance = Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity);
+            var instance = equip.MyBullet ? Instantiate(equip.MyBullet, _bulletMuzzle.position, Quaternion.identity) : new GameObject("default");
             var targetpos = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
             instance.transform.LookAt(targetpos);
             droneController.IsShooting = true;
@@ -136,11 +176,14 @@ public class BulletFire : MonoBehaviour
                     equip.PassiveAction?.Execute();
                     if (equip.BulletCustomType == BulletCustomType.Buff) droneController.BuffMovement(equip.AttackDuraration);
                     //バフのエフェクトを生成
-                    instance.transform.SetParent(m_passiveEffectPoint);
-                    instance.transform.localPosition = Vector3.zero;
-                    instance.transform.localRotation = Quaternion.identity;
-                    if (instance.TryGetComponent(out laser)) laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
-                    FindObjectOfType<PlayerManager>().AddDamage(bulletDamage.Value < 0 ? Mathf.CeilToInt(bulletDamage.Value) : 0, ref call);
+                    if (instance)
+                    {
+                        instance.transform.SetParent(m_passiveEffectPoint);
+                        instance.transform.localPosition = Vector3.zero;
+                        instance.transform.localRotation = Quaternion.identity;
+                        if (instance.TryGetComponent(out laser)) laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
+                    }
+                    if (!FindObjectOfType<PlayerManager>().Heal(bulletDamage.Value < 0 ? Mathf.CeilToInt(bulletDamage.Value): 0)) return;
                     var addtime = equip.PassiveAction != null ? equip.PassiveAction.GetEffectiveTime() : 0;
                     if (!equip.IsPermanence) Destroy(instance, equip.AttackDuraration + addtime);
                     else
@@ -157,8 +200,7 @@ public class BulletFire : MonoBehaviour
                 instance.GetComponent<ICustomSkillEvent>().CustomSkillEvent += (x) => equip.PassiveSkill.CustomSkillAction.Execute(x);
             }
             //SoundManager.Instance.PlayShoot();
-            stanceValue -= bulletEnergy.Value;
-            m_stance.fillAmount = stanceValue;
+            _ep.Value = _ep.Value - bulletEnergy.Value;
         }
         else
         {
@@ -197,7 +239,8 @@ public class BulletFire : MonoBehaviour
         if(equip.PassiveSkill && equip.PassiveSkill.CustomSkillAction != null && equip.PassiveSkill.Type == CustomSkill.SkillType.Passive) equip.PassiveSkill.CustomSkillAction.Execute(value);
 
         //パッシブスキルセット時のコストを計算
-        consumeValue = equip.ConsumeStanceValue + (equip.PassiveSkill != null ? equip.PassiveSkill.ConsumeCost : 0); 
+        consumeValue = equip.ConsumeStanceValue + (equip.PassiveSkill != null ? equip.PassiveSkill.ConsumeCost : 0);
+        m_line.fillAmount = _ep.Value - consumeValue;
     }
 
     /// <summary>
@@ -225,5 +268,10 @@ public class BulletFire : MonoBehaviour
     public void ChangeCoolDown(float reduceRate)
     {
         StartCoroutine(cooldownTime.ChangeValue(reduceRate, 0));
+    }
+
+    private void OnDestroy()
+    {
+        _ep.Dispose();
     }
 }
