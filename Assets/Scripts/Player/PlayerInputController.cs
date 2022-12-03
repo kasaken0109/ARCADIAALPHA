@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,15 +28,15 @@ public class PlayerInputController : MonoBehaviour
     {
         _playerInput.actions["Jump"].started += OnJump;
         _playerInput.actions["Fire"].started += OnFire;
+        _playerInput.actions["Fire"].canceled += OnFireCanceled;
         _playerInput.actions["Dodge"].started += OnDodge;
-        _playerInput.actions["OpenUI"].started += OnSelect;
-        _playerInput.actions["BulletSelect"].started += OnBulletSelect;
         _playerInput.actions["Attack"].started += OnAttack;
-
-
         _playerInput.actions["Option"].started += OnMenu;
-        //_playerInput.actions["LockOn"].performed += OnLockOn;
-       // NewTest a = new NewTest();
+        _playerInput.actions["Equip1"].started += OnEquip1;
+        _playerInput.actions["Equip2"].started += OnEquip2;
+        _playerInput.actions["Equip3"].started += OnEquip3;
+        _playerInput.actions["LockOn"].performed += OnLockOn;
+        // NewTest a = new NewTest();
         //a.Player.Move.performed += contexet => _playerControll.Move(Vector3.zero); 
     }
 
@@ -45,12 +44,14 @@ public class PlayerInputController : MonoBehaviour
     {
         _playerInput.actions["Jump"].started -= OnJump;
         _playerInput.actions["Fire"].started -= OnFire;
+        _playerInput.actions["Fire"].canceled += OnFireCanceled;
         _playerInput.actions["Dodge"].started -= OnDodge;
-        _playerInput.actions["OpenUI"].started -= OnSelect;
-        _playerInput.actions["BulletSelect"].started += OnBulletSelect;
         _playerInput.actions["Attack"].started -= OnAttack;
         _playerInput.actions["Option"].started -= OnMenu;
-        //_playerInput.actions["LockOn"].performed -= OnLockOn;
+        _playerInput.actions["Equip1"].started -= OnEquip1;
+        _playerInput.actions["Equip2"].started -= OnEquip2;
+        _playerInput.actions["Equip3"].started -= OnEquip3;
+        _playerInput.actions["LockOn"].performed -= OnLockOn;
     }
     private void FixedUpdate()
     {
@@ -63,24 +64,34 @@ public class PlayerInputController : MonoBehaviour
         _playerMove.Jump();
     }
 
+    bool IsFireing = false;
     private void OnFire(InputAction.CallbackContext obj)
     {
-        _bulletFire.ShootBullet();
+        IsFireing = true;
+        StartCoroutine(AssaltMode());
+        IEnumerator AssaltMode(){
+            while (IsFireing)
+            {
+                if (_bulletFire.CanFire) _bulletFire.ShootBullet();
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+        
+    }
+
+    public bool IsPressShotKey()
+    {
+        return IsFireing;
+    }
+
+    private void OnFireCanceled(InputAction.CallbackContext obj)
+    {
+        IsFireing = false;
     }
 
     private void OnDodge(InputAction.CallbackContext obj)
     {
         _playerMove.Dodge(dir);
-    }
-
-    private void OnSelect(InputAction.CallbackContext obj)
-    {
-        _bulletSelectController.OpenBulletMenu();
-    }
-
-    private void OnBulletSelect(InputAction.CallbackContext obj)
-    {
-        _bulletSelectController.SelectBullet(obj.ReadValue<float>());
     }
     private void OnAttack(InputAction.CallbackContext obj)
     {
@@ -92,8 +103,24 @@ public class PlayerInputController : MonoBehaviour
         GameManager.Instance.SetMenu();
     }
 
+    private void OnEquip1(InputAction.CallbackContext obj)
+    {
+        _bulletSelectController.SelectBullet(0);
+    }
+
+    private void OnEquip2(InputAction.CallbackContext obj)
+    {
+        _bulletSelectController.SelectBullet(1);
+    }
+
+    private void OnEquip3(InputAction.CallbackContext obj)
+    {
+        _bulletSelectController.SelectBullet(2);
+    }
+
     private void OnLockOn(InputAction.CallbackContext obj)
     {
+        Debug.Log("EnterLockON");
         _cameraController.LockON();
     }
 }

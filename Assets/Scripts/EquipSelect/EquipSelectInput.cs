@@ -41,7 +41,7 @@ public class EquipSelectInput : MonoBehaviour
         _playerInput.actions["Hold"].started += OnMovePanel;
         _playerInput.actions["Hold"].performed += OnHold;
         _playerInput.actions["Hold"].canceled += OnBackPanel;
-        _playerInput.actions["Submit"].started += OnSubmit;
+        //_playerInput.actions["Submit"].started += OnSubmit;
         _playerInput.actions["Equip"].started += OnEquip;
     }
 
@@ -52,7 +52,7 @@ public class EquipSelectInput : MonoBehaviour
         _playerInput.actions["Hold"].started -= OnMovePanel;
         _playerInput.actions["Hold"].performed -= OnHold;
         _playerInput.actions["Hold"].canceled -= OnBackPanel;
-        _playerInput.actions["Submit"].started -= OnSubmit;
+        //_playerInput.actions["Submit"].started -= OnSubmit;
         _playerInput.actions["Equip"].started -= OnEquip;
     }
 
@@ -127,6 +127,7 @@ public class EquipSelectInput : MonoBehaviour
 
     private void OnEquip(InputAction.CallbackContext obj)
     {
+        if (_equipChangeManager.SceneState != EquipSceneState.SwordSelect) return;
         var m = obj.ReadValue<float>();
         _swordController.SetWeapon(m > 0);
         _sizeRescalerController.SelectSwordDisplay(m > 0);
