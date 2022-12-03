@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
+  m_Name: DefenceBufBullet
+  m_EditorClassIdentifier: 
+  m_bullet: {fileID: 6857965099626966197, guid: e9593063ca0b5f24fb320cff76a97a85, type: 3}
+  m_damage: 0
+  _attackDuraration: 2.5
+  _isPermanence: 1
+  m_delay: 0.2
+  m_consumeStanceValue: 0.3
+  _bulletCustomType: 1
+  passiveSkill: {fileID: 11400000, guid: 4952114d35d013f43b9e9e5b9c3afe0b, type: 2}
+  m_bulletType: 2
+  _passiveAction:
+    id: 0
+  m_name: "\u9632\u5FA1\u529B\u4E0A\u6607"
+  m_explainText: "\u30D7\u30EC\u30A4\u30E4\u30FC\u306E\u9632\u5FA1\u529B\uFF35\uFF30"
+  m_image: {fileID: 21300000, guid: f6c28e6ec36a04545b9983b787fa8476, type: 3}
+  _equipImage: {fileID: 21300000, guid: 0c451bcd34e671248b22acbfffa008e1, type: 3}
+  _equipCoolDownImage: {fileID: 21300000, guid: e19c4284821f5d3449dc24bce0a8647a, type: 3}
+  references:
+    version: 1
+    00000000:
+      type: {class: PlayerDefenceUp, ns: , asm: Assembly-CSharp}
+      data:
+        _defenceUp: 1.2
+        _effectiveTime: 5

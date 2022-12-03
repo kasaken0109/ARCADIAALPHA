@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
+  m_Name: ShotgunBullet
+  m_EditorClassIdentifier: 
+  m_bullet: {fileID: 1354823903795634764, guid: 3dfc2aaecad187446b1d496952f664f1, type: 3}
+  m_damage: 150
+  _attackDuraration: 0
+  _isPermanence: 0
+  m_delay: 3
+  m_consumeStanceValue: 0.2
+  _bulletCustomType: 4
+  passiveSkill: {fileID: 11400000, guid: 8866e9d0629a97b458ae023da8c6d9f1, type: 2}
+  m_bulletType: 0
+  _passiveAction:
+    id: 0
+  m_name: "\u6563\u5F3E"
+  m_explainText: "\u8FD1\u8DDD\u96E2\u7A0B\u5A01\u529B\u304C\u5897\u52A0\u3059\u308B\u5F3E"
+  m_image: {fileID: 21300000, guid: 0ccdea0819bd53c47be489fe6c11b8db, type: 3}
+  _equipImage: {fileID: 21300000, guid: 055de3ba1c424564898002d5e120d136, type: 3}
+  _equipCoolDownImage: {fileID: 21300000, guid: 15bf1d793a8afe14e9a1274b8a3bf9d4, type: 3}
+  references:
+    version: 1
+    00000000:
+      type: {class: , ns: , asm: }

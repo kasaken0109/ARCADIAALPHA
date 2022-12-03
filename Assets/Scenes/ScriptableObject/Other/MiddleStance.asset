@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361513c081135794ca2f405d2d740fb0, type: 3}
+  m_Name: MiddleStance
+  m_EditorClassIdentifier: 
+  m_movingSpeed: 10
+  m_runningCorrection: 1.6
+  m_turnSpeed: 8
+  m_jumpPower: 2
+  m_floatPower: 0.1
+  m_midairSpeedRate: 0.7
+  m_midairConsumeRate: -0.003
+  m_dushPower: 6
+  m_dushAttackPower: 15
+  m_dodgeLength: 7
+  m_dodgeCoolDown: 1.5
+  m_anim: {fileID: 9100000, guid: f39771aa59204e84488b661d603be6cd, type: 2}

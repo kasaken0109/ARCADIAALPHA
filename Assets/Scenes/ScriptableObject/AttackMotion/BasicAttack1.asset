@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e603a8b214244f7419dfbd66e9c9af6e, type: 3}
+  m_Name: BasicAttack1
+  m_EditorClassIdentifier: 
+  _attackClip: {fileID: 7400000, guid: 5889b5d105eb0734d8d7dd680d01bcd7, type: 2}
+  _attackInfomations:
+  - enableAttackPoint: 0.5
+    disableAttackPoint: 2
+    AttackPower: 50
+  _clipDuraration: 3.2
+  _canMove: 0

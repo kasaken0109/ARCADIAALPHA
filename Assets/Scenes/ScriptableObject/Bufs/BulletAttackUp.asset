@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d14eb774a69af428c73db3c490aeca, type: 3}
+  m_Name: BulletAttackUp
+  m_EditorClassIdentifier: 
+  customSkillAction:
+    id: 0
+  consumeCost: 0
+  skillType: 0
+  explainText: "\u5F3E\u306E\u653B\u6483\u529B\u3092\u4E0A\u3052\u308B"
+  skillName: "\u5F3E\u5A01\u529B\u30A2\u30C3\u30D7"
+  image: {fileID: 21300000, guid: 25a16fb0f43621e4c8a39f58ac9d2573, type: 3}
+  m_effect: {fileID: 0}
+  references:
+    version: 1
+    00000000:
+      type: {class: BulletAddDamage, ns: , asm: Assembly-CSharp}
+      data:
+        _attackUp: 1.5
