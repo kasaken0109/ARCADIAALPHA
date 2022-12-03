@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackManager : MonoBehaviour
+public class LayserHitController : MonoBehaviour
 {
-    [SerializeReference, SubclassSelector]
-    IInputBehavior[] _actionList = default;
     // Start is called before the first frame update
     void Start()
     {

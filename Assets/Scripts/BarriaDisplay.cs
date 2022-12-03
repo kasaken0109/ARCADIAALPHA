@@ -49,9 +49,9 @@ public class BarriaDisplay : MonoBehaviour,IDamage
         {
             hp = 0;
             Instantiate(_crush,transform.position,transform.rotation);
-            gameObject.SetActive(false);
+            gameObject.SetActive(false); 
+            _hitEvent?.Invoke();
         }
-        _hitEvent?.Invoke();
     }
     
     private void OnEnable()
