@@ -6,7 +6,7 @@ using DG.Tweening;
 /// <summary>
 /// ƒpƒlƒ‹‚ÌˆÚ“®ˆ—‚ğs‚¤
 /// </summary>
-public sealed class PanelAnimationController : UIAnimationController
+public  class PanelAnimationController : UIAnimationController,IUnhinderable
 {
     [SerializeField]
     float _animSpeed = 30f;
@@ -21,7 +21,7 @@ public sealed class PanelAnimationController : UIAnimationController
     const float displayAnchor = -2797.4f;
     const float leftAnchor = -2102.6f;
     const float rightAnchor = -259.67f;
-    void Start()
+    void Awake()
     {
         TryGetComponent(out _rectTransform);
         originPosition = _rectTransform.offsetMin;
@@ -30,11 +30,13 @@ public sealed class PanelAnimationController : UIAnimationController
     {
         IEnumerator MovePos()
         {
+            isReachDestination = false;
             while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
             {
                 _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
                 yield return null;
             }
+            isReachDestination = true;
         }
         StartCoroutine(MovePos());
     }
@@ -43,11 +45,14 @@ public sealed class PanelAnimationController : UIAnimationController
     {
         IEnumerator MovePos()
         {
+            isReachDestination = false;
+            //Debug.Log(_rectTransform);
             while (Mathf.Abs(_rectTransform.offsetMin.x - displayAnchor) >= threshold)
             {
                 _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x - _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
                 yield return null;
             }
+            isReachDestination = true;
         }
         StartCoroutine(MovePos());
     }
@@ -107,12 +112,17 @@ public sealed class PanelAnimationController : UIAnimationController
 
     public override void Active()
     {
-        Debug.Log("active");
+        //Debug.Log("active");
         //base.Active();
     }
 
     public override void NonActive()
     {
         FadePanel();
+    }
+
+    public override bool IsHinderable()
+    {
+        return isReachDestination;
     }
 }
