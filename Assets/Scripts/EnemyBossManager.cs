@@ -95,7 +95,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
         {
             var weaponAttribute = call.GetComponent<WeaponAttributeController>();
             StunChecker(weaponAttribute.StunPower);
-            call.GetComponentInParent<PlayerMoveController>().AddStanceValue(weaponAttribute.MPAbsorbValue);
+            FindObjectOfType<BulletFire>().AddStanceValue(weaponAttribute.MPAbsorbValue);
         }
         StopCoroutine(HitStop());
         if (damage >= Mathf.CeilToInt(m_rate * hitstopRate))
