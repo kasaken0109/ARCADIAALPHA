@@ -171,8 +171,8 @@ RectTransform:
   - {fileID: 351180625}
   - {fileID: 2006230942}
   - {fileID: 1313881316}
-  - {fileID: 142205969}
   - {fileID: 2029999815}
+  - {fileID: 142205969}
   m_Father: {fileID: 1593704729}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2866,6 +2866,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2434419825861835553, guid: 7726f9f9f2e214946af871a4ed9560c8, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434419825935397528, guid: 7726f9f9f2e214946af871a4ed9560c8, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434419825935397528, guid: 7726f9f9f2e214946af871a4ed9560c8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434419825935397528, guid: 7726f9f9f2e214946af871a4ed9560c8, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
