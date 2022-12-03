@@ -18,7 +18,6 @@ public class OptionControler : MonoBehaviour
     EventSystem eventSystem;
     void OnEnable()
     {
-        Debug.Log("Awake");
         eventSystem = FindObjectOfType<EventSystem>();
         _se.Select();
         ///‰¹—Ê‚ðslider‚Ì’l‚É”½‰f‚³‚¹‚é

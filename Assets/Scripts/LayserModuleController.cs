@@ -60,8 +60,6 @@ public class LayserModuleController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         CanUse = true;
     }
-
-    bool IsEnd = false;
     private RaycastHit RayHit(Ray ray, ref GameObject hitObject)
     {
         RaycastHit hit;
@@ -78,7 +76,8 @@ public class LayserModuleController : MonoBehaviour
                 {
                     IsSounded = !IsSounded ? true : false;
                     hitObject.GetComponentInParent<IDamage>().AddDamage(damage,ref m_effect);
-                    if(!IsEnd)Instantiate(m_effect, hitPosition, Quaternion.identity);
+                    //if(!IsEnd)
+                        Instantiate(m_effect, hitPosition, Quaternion.identity);
                 }
                 if (!IsHitSound)
                 {
@@ -86,7 +85,6 @@ public class LayserModuleController : MonoBehaviour
                     SoundManager.Instance.PlayFrost();
                     IsHitSound = true;
                 }
-                IsEnd = true;
             }
         }
         return hit;

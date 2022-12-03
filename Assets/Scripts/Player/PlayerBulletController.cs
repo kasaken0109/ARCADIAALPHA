@@ -19,11 +19,9 @@ public class PlayerBulletController : MonoBehaviour, ICustomSkillEvent
     public Action<GameObject> CustomSkillEvent { get => _customSkillEvent; set => _customSkillEvent = value; }
     Action<GameObject> _customSkillEvent;
 
-    private int _damage = 100;
+    int _damage = 100;
 
     Rigidbody _rb;
-
-    GameObject call = default;
 
 
     void Start()

@@ -13,9 +13,6 @@ public class PlayerAttackController : MonoBehaviour
     [SerializeReference, SubclassSelector]
     AttackSet[] _attackCriticalSets;
 
-    [SerializeReference, SubclassSelector]
-    ICondition _start = default;
-
     [SerializeField]
     float _endDuraration = 1f;
 
@@ -34,9 +31,6 @@ public class PlayerAttackController : MonoBehaviour
     int playIndex = 0;
 
     float endTimer = 0;
-
-    bool isPlayFailureState = false;
-
     void Start()
     {
         TryGetComponent(out _playerMove);
@@ -82,11 +76,11 @@ public class PlayerAttackController : MonoBehaviour
                 }
                 break;
             case ConditionState.Failure:
-                if (!isPlayFailureState) {
-                    _anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
-                    //_anim.Play(_currentSets[playIndex]._FailedStateName);
-                    isPlayFailureState = true;
-                }
+                //if (!isPlayFailureState) {
+                //    _anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
+                //    isPlayFailureState = true;
+                //}
+                //_anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
                 current.Reset();
                 playIndex = 0;
                 CheckPlayerState();
@@ -122,7 +116,6 @@ public class PlayerAttackController : MonoBehaviour
 
     public void CheckPlayerState()
     {
-        isPlayFailureState = false;
         switch (PlayerManager.Instance.PlayerState)
         {
             case PlayerState.OnField:

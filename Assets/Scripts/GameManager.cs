@@ -40,10 +40,6 @@ public class GameManager : MonoBehaviour
     GameObject m_lose = null;
 
     [SerializeField]
-    [Tooltip("照準のUI,バレットの参照用")]
-    RectTransform m_crosshairUi = null;
-
-    [SerializeField]
     PlayerManager m_player = default;
 
     [SerializeField]
@@ -51,9 +47,6 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance = null;
 
-    public RectTransform CrosshairUI => m_crosshairUi;
-
-    
     static public PlayerManager Player => Instance.m_player;
 
     void Awake()
@@ -83,7 +76,7 @@ public class GameManager : MonoBehaviour
         switch (myGameState)
         {
             case GameState.START:
-                StartCoroutine(m_timerManager.TimeUpdate());
+                StartCoroutine(m_timerManager.TimeUpdateCountUp());
                 m_timerManager.IsPlaying = true;
                 break;
             case GameState.PLAYING:
