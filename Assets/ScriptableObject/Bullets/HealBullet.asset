@@ -24,7 +24,7 @@ MonoBehaviour:
   _passiveAction:
     id: 0
   m_name: "\u56DE\u5FA9"
-  m_explainText: "\u30D7\u30EC\u30A4\u30E4\u30FC\u3092\u4E00\u5B9A\u5272\u5408\u56DE\u5FA9\u3059\u308B"
+  m_explainText: "\u30D7\u30EC\u30A4\u30E4\u30FC\u3092\u56DE\u5FA9\u3059\u308B"
   m_image: {fileID: 21300000, guid: 415a131890098f74c9735a950956c8fe, type: 3}
   _equipImage: {fileID: 21300000, guid: 5456a5b09f799c3438c98dd4b812b4de, type: 3}
   _equipCoolDownImage: {fileID: 21300000, guid: edba18da1b1f46645858a830fe20e168, type: 3}
