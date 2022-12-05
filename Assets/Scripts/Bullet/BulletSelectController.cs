@@ -19,10 +19,6 @@ public class BulletSelectController : MonoBehaviour
     private List<Bullet> _IDs;
 
     [SerializeField]
-    [Tooltip("初期化時の弾のリスト")]
-    private BulletList _init;
-
-    [SerializeField]
     private EquipBulletDisplay[] _bulletDisplay;
 
     private int equipID = 0;
@@ -43,7 +39,7 @@ public class BulletSelectController : MonoBehaviour
     private void EquipmentInit()
     {
         var equip = EquipmentManager.Instance.Equipments;
-        for (int i = 0; i < equip.Length; i++) equip[i] = equip[i] == null ? _init.Bullets[i] : equip[i];
+        for (int i = 0; i < equip.Length; i++) equip[i] = equip[i];
     }
 
     /// <summary>
@@ -67,7 +63,7 @@ public class BulletSelectController : MonoBehaviour
     private void EquipBullets()
     {
         var equipM = EquipmentManager.Instance;
-        for (int i = 0;i < _IDs.Count;i++) _IDs[i] = equipM.Equipments[i] ? equipM.Equipments[i] : _init.Bullets[i];
+        for (int i = 0;i < _IDs.Count;i++) _IDs[i] = equipM.Equipments[i];
     }
 
     private void OnDestroy()

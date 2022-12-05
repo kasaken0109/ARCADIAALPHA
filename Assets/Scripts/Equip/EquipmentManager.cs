@@ -28,6 +28,8 @@ public class EquipmentManager : MonoBehaviour
 
     public GameObject CurrentSword => _currentSword;
 
+    public int Point { get; set; }
+
     GameObject _currentSword = default;
     public void SetSword(GameObject sword)
     {
@@ -35,7 +37,18 @@ public class EquipmentManager : MonoBehaviour
     }
 
     [HideInInspector]
-    public Bullet[] Equipments = new Bullet[3];
+    public Bullet[] Equipments {
+        get
+        {
+            for (int i = 0; i < _equipments.Length; i++)
+            {
+                _equipments[i] = _equipments[i] ? _equipments[i] : ServiceLocator.GetInstance<EquipDataPresenter>().GetInitBullet(i);
+            }
+            return _equipments;
+        }
+    }
+
+    Bullet[] _equipments = new Bullet[3];
 
     private int _equipID = 1;
 
@@ -53,5 +66,10 @@ public class EquipmentManager : MonoBehaviour
     }
 
     public void SetEquipID(int value) => _equipID = value;
+
+    private void OnDestroy()
+    {
+        
+    }
 
 }

@@ -8,19 +8,18 @@ using UnityEngine;
 /// </summary>
 public class EquipDataSender : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("情報を送る弾")]
-    Bullet _bullet = default;
-    [SerializeField]
-    [Tooltip("装備の情報を表示する")]
-    EquipmentView _equipmentView = default;
 
+    private void Start()
+    {
+        ServiceLocator.GetInstance<EquipmentView>().SetBulletDetailExplainInformations();
+    }
     /// <summary>
     /// 選択した弾の情報を装備、表示管理するクラスに送る
     /// </summary>
-    public void DataSet()
+    public void DataSet(int bulletID)
     {
-        EquipmentManager.Instance.SetEquipments(_bullet);
-        _equipmentView.SetInformations();
+        var equipPresenter = ServiceLocator.GetInstance<EquipDataPresenter>();
+        equipPresenter.SendBulletData(bulletID);
+        ServiceLocator.GetInstance<EquipmentView>().SetInformations();
     }
 }

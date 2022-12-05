@@ -14,3 +14,17 @@ public class EquipmentInformation
 
     public Text SkillName;
 }
+
+
+[System.Serializable]
+public class EquipmentDetailInformation
+{
+    public Text BulletName;
+
+    public Text BulletExplainContext;
+
+    public Text SkillName;
+
+    public Text SkillExplainContext;
+
+}
