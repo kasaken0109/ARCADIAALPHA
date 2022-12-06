@@ -70,6 +70,7 @@ public class BulletFire : MonoBehaviour
     /// <summary>弾の消費エネルギー(可変)</summary>
     BufferParameter bulletEnergy;
 
+    /// <summary>エネルギーの数値</summary>
     readonly ReactiveProperty<float> _ep = new ReactiveProperty<float>(0);
 
     public bool CanFire => canShoot;
@@ -104,9 +105,10 @@ public class BulletFire : MonoBehaviour
 
     void TimerUpdate()
     {
+        const float WaitTime = 0.5f; 
         IEnumerator Update()
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(WaitTime);
             while (IsTimerActive)
             {
                 nonInputTimer += Time.deltaTime;
@@ -165,7 +167,6 @@ public class BulletFire : MonoBehaviour
                     else if (instance.TryGetComponent(out layserModule))
                     {
                         layserModule.Damage = Mathf.CeilToInt(bulletDamage.Value);
-                        //laser.Target = target;
                         instance.transform.SetParent(transform);
                     }
                     break;
@@ -185,12 +186,13 @@ public class BulletFire : MonoBehaviour
                     }
                     if (!FindObjectOfType<PlayerManager>().Heal(bulletDamage.Value < 0 ? Mathf.CeilToInt(bulletDamage.Value): 0)) return;
                     var addtime = equip.PassiveAction != null ? equip.PassiveAction.GetEffectiveTime() : 0;
-                    if (!equip.IsPermanence) Destroy(instance, equip.AttackDuraration + addtime);
-                    else
+                    if (!equip.IsPermanence)
                     {
-                        var effectDisplay = instance.GetComponent<EffectDelayDisplayer>();
-                        effectDisplay.DelayDestroy = equip.AttackDuraration + addtime;
+                        Destroy(instance, equip.AttackDuraration + addtime);
+                        return;
                     }
+                    var effectDisplay = instance.GetComponent<EffectDelayDisplayer>();
+                    effectDisplay.DelayDestroy = equip.AttackDuraration + addtime;
                     break;
                 default:
                     break;
