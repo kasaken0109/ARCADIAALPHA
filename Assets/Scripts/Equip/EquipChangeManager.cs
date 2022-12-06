@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 public enum EquipSceneState
 {
@@ -55,7 +56,7 @@ public class EquipChangeManager : MonoBehaviour
                     var prev = _sceneState == EquipSceneState.EquipMain ? 2 : 3;
                     if (_sceneState == EquipSceneState.SwordSelect) _lonaDisplay.SetBool("IsDisplay", false);
                     if (_sceneState == EquipSceneState.EquipMain) cameraSwitcher.SetFocus(FocusState.Lona);
-                        EventSystem.current.SetSelectedGameObject(_defaultSelectObject[3]);
+                    EventSystem.current.SetSelectedGameObject(_defaultSelectObject[3]);
                     _uIAnimations[prev].NonActive();
                     unhinderables.Add(_uIAnimations[prev].GetComponent<IUnhinderable>());
                     break;
@@ -86,6 +87,7 @@ public class EquipChangeManager : MonoBehaviour
                         unhinderables.Add(target.GetComponent<IUnhinderable>());
                     }
                     EventSystem.current.SetSelectedGameObject(prevSelected == null ? _defaultSelectObject[equipId] : prevSelected);
+                    StartCoroutine(WaitSet(prevSelected == null ? 0 : EquipmentManager.Instance.GetEquipID));
 
                     break;
                 case EquipSceneState.BulletSelect:
@@ -122,4 +124,11 @@ public class EquipChangeManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(_defaultSelectObject[equipId]);
         }
     }
+
+    IEnumerator WaitSet(int id)
+    {
+        yield return new WaitForSeconds(0.4f);
+        ServiceLocator.GetInstance<SelectFrameController>().MoveFrame(id);
+    }
+    
 }
