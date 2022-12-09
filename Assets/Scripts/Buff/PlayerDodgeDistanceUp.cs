@@ -15,7 +15,7 @@ public class PlayerDodgeDistanceUp : IPassiveAction
 
     public void Execute(float value = 0)
     {
-        PassiveActionCaller.Instance.DodgeDistanceUp(_dodgeDistanceUp,_effectiveTime);
+        //PassiveActionCaller.Instance.DodgeDistanceUp(_dodgeDistanceUp,_effectiveTime);
     }
     public void OnAwake()
     {

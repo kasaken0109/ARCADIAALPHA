@@ -38,12 +38,6 @@ public class PassiveActionCaller : MonoBehaviour
         bulletFire = FindObjectOfType<BulletFire>();
     }
 
-    public void PlayerSpeedUp(float speedupRate, float time)
-    {
-        playerControll.ChangeMoveSpeed(speedupRate,time);
-        Debug.Log("Call1");
-    }
-
 
     public void PlayerHeal(float healAmount)
     {
@@ -59,17 +53,6 @@ public class PassiveActionCaller : MonoBehaviour
     {
         playerManager.ChangeDefenceValue(defenceupRate, time);
     }
-
-    public void DodgeDistanceUp(float distanceRate, float time)
-    {
-        playerControll.ChangeDodgeDistance(distanceRate, time);
-    }
-
-    public void AttackSpeedUp(float speedUpRate,float time)
-    {
-        playerControll.ChangeAttackspeedRate(speedUpRate, time);
-    }
-
     public void InvisibleTimeUp(float extentionRate, float time)
     {
         playerManager.ChangeInvisibleTime(extentionRate, time);

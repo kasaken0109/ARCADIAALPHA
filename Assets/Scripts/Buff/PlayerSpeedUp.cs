@@ -17,7 +17,7 @@ public class PlayerSpeedUp : IPassiveAction
 
     public void Execute(float value = 0)
     {
-        PassiveActionCaller.Instance.PlayerSpeedUp(_speedUpRate,_effectiveTime);
+        //PassiveActionCaller.Instance.PlayerSpeedUp(_speedUpRate,_effectiveTime);
     }
 
     public void OnAwake()

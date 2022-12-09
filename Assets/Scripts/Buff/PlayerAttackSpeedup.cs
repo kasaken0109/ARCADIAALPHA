@@ -14,7 +14,7 @@ public class PlayerAttackSpeedup : IPassiveAction
 
     public void Execute(float value = 0)
     {
-        PassiveActionCaller.Instance.AttackSpeedUp(_attackSpeedUp, _effectiveTime);
+        //PassiveActionCaller.Instance.AttackSpeedUp(_attackSpeedUp, _effectiveTime);
     }
     public void OnAwake()
     {
