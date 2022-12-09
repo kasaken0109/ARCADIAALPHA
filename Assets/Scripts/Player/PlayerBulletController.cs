@@ -33,20 +33,17 @@ public class PlayerBulletController : MonoBehaviour, ICustomSkillEvent
     {
         if (other.CompareTag("Enemy"))
         {
-            IDamage idamage;
-            other.gameObject.TryGetComponent(out idamage);
+            other.gameObject.TryGetComponent(out IDamage idamage);
             idamage = idamage != null ? idamage : other.gameObject.GetComponentInParent<IDamage>();
             idamage.AddDamage(_damage, ref _effect);
             _customSkillEvent?.Invoke(other.gameObject);
             var pos = other.gameObject.transform.position;
             Instantiate(_effect, pos, Quaternion.identity);
             Destroy(gameObject);
+            return;
         }
-        else
-        {
-            var pos = other.ClosestPoint(transform.position);
-            Instantiate(_unHitEffect, pos, Quaternion.identity);
-            Destroy(gameObject, 3);
-        }
+        var posV = other.ClosestPoint(transform.position);
+        Instantiate(_unHitEffect, posV, Quaternion.identity);
+        Destroy(gameObject, 3);
     }
 }
