@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HealBullet
   m_EditorClassIdentifier: 
   m_bullet: {fileID: 0}
-  m_damage: -50
+  m_damage: 0
   _attackDuraration: 0
   _isPermanence: 0
   m_delay: 0.2
@@ -31,4 +31,6 @@ MonoBehaviour:
   references:
     version: 1
     00000000:
-      type: {class: , ns: , asm: }
+      type: {class: PlayerHeal, ns: , asm: Assembly-CSharp}
+      data:
+        _healAmount: 100
