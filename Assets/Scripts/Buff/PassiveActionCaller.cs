@@ -44,6 +44,12 @@ public class PassiveActionCaller : MonoBehaviour
         Debug.Log("Call1");
     }
 
+
+    public void PlayerHeal(float healAmount)
+    {
+        playerManager.Heal(Mathf.CeilToInt(healAmount) * -1);
+    }
+
     public void PlayerAttackUp(float attackupRate, float time)
     {
         playerAttack.ChangeAttackPower(attackupRate, time);

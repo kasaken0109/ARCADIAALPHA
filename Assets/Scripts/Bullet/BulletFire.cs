@@ -184,7 +184,6 @@ public class BulletFire : MonoBehaviour
                         instance.transform.localRotation = Quaternion.identity;
                         if (instance.TryGetComponent(out laser)) laser.Damage = Mathf.CeilToInt(bulletDamage.Value);
                     }
-                    if (!FindObjectOfType<PlayerManager>().Heal(bulletDamage.Value < 0 ? Mathf.CeilToInt(bulletDamage.Value): 0)) return;
                     var addtime = equip.PassiveAction != null ? equip.PassiveAction.GetEffectiveTime() : 0;
                     if (!equip.IsPermanence)
                     {
@@ -193,6 +192,7 @@ public class BulletFire : MonoBehaviour
                     }
                     var effectDisplay = instance.GetComponent<EffectDelayDisplayer>();
                     effectDisplay.DelayDestroy = equip.AttackDuraration + addtime;
+
                     break;
                 default:
                     break;
