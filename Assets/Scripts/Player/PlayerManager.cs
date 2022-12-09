@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using System.Linq;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using System.Collections;
 
 public enum PlayerState
 {
@@ -20,7 +21,7 @@ public enum PlayerState
 /// プレイヤーのパラメーター(体力、ムテキ時間等)を管理するクラス
 /// </summary>
 [RequireComponent(typeof(PlayerMoveController))]
-public class PlayerManager : MonoBehaviour,IDamage
+public class PlayerManager : MonoBehaviour, IDamage, ITarget
 {
     public static PlayerManager Instance { get; private set; }
 
@@ -35,10 +36,6 @@ public class PlayerManager : MonoBehaviour,IDamage
     [SerializeField]
     [Tooltip("回避成功時の無敵時間")]
     float _changeTime = 10f;
-
-    [SerializeField]
-    [Tooltip("回避成功時の無敵時間")]
-    float _invisibleTimeOnDodge = 2f;
 
     [SerializeField]
     [Tooltip("回避成功時のスロウ率")]
@@ -67,7 +64,7 @@ public class PlayerManager : MonoBehaviour,IDamage
     [SerializeField]
     [Tooltip("画面の演出用Volume")]
     Volume _volume;
-    
+
     /// <summary>現在のプレイヤーのHP</summary>
     int _maxhp;
     /// <summary>ムテキ状態か</summary>
@@ -78,6 +75,12 @@ public class PlayerManager : MonoBehaviour,IDamage
     PlayerMoveController _playerControll;
     /// <summary>ムテキ時間を管理するバフ値</summary>
     BufferParameter _invisibleTime;
+    BufferParameter _defenceValue;
+    [SerializeField]
+    PlayerAttackController _playerAttackController;
+
+    [SerializeField]
+    BarriaDisplay _barriaDisplay = default;
 
     PlayerState playerState = PlayerState.OnField;
 
@@ -86,14 +89,11 @@ public class PlayerManager : MonoBehaviour,IDamage
         set
         {
             //優先度が高いものが入っていた場合はその値の保持を優先する
-            if(playerState < value) playerState = value;
-            else
-            {
-                if (playerState < PlayerState.Invisible) playerState = value;
-            }
+            if (playerState < value) playerState = value;
+            else if (playerState < PlayerState.Invisible) playerState = value;
         }
     }
-    
+
     VolumeProfile _volumeProfile;
     ChromaticAberration chromaticAberration;
     ColorAdjustments colorAjustments;
@@ -104,12 +104,13 @@ public class PlayerManager : MonoBehaviour,IDamage
     {
         Instance = this;
         _invisibleTime = new BufferParameter(_godTime);
+        _defenceValue = new BufferParameter(1f);
         _maxhp = _hp;
         TryGetComponent(out _playerControll);
         TryGetComponent(out _anim);
+        _barriaDisplay.gameObject.SetActive(false);
         InitDisplayEffect();
     }
-
     /// <summary>
     /// 画面のエフェクトの初期化を行う
     /// </summary>
@@ -122,7 +123,7 @@ public class PlayerManager : MonoBehaviour,IDamage
         _volume.weight = 0f;
     }
 
-    public void AddDamage(int damage,ref GameObject call)
+    public void AddDamage(int damage, ref GameObject call)
     {
         if (damage < 0)
         {
@@ -134,14 +135,32 @@ public class PlayerManager : MonoBehaviour,IDamage
         }
         else
         {
-            Hit(damage);
+            Hit(Mathf.CeilToInt(damage / _defenceValue.Value));
         }
+        UpdateHpDisplay();
+    }
+
+    /// <summary>
+    /// 体力表示を切り替える
+    /// </summary>
+    private void UpdateHpDisplay()
+    {
         _hpsliderGreen.DOFillAmount((float)_hp / _maxhp,
-                0f).OnComplete(() =>
-                {
-                    _hpslider.DOFillAmount((float)_hp / _maxhp,
-                        1f);
-                });
+                        0f).OnComplete(() =>
+                        {
+                            _hpslider.DOFillAmount((float)_hp / _maxhp,
+                                1f);
+                        });
+    }
+
+    /// <summary>
+    /// 破壊時に特殊処理を登録できるバリアを生成
+    /// </summary>
+    /// <param name="action"></param>
+    public void GenerateBarria(Action<GameObject> action)
+    {
+        _barriaDisplay.GetComponent<ICustomSkillEvent>().CustomSkillEvent = action;
+        _barriaDisplay.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -150,16 +169,20 @@ public class PlayerManager : MonoBehaviour,IDamage
     /// <param name="damage">ダメージ値</param>
     void Hit(int damage)
     {
+        if (_barriaDisplay.gameObject.activeInHierarchy)
+        {
+            GameObject call = gameObject;
+            _barriaDisplay.AddDamage(1, ref call);
+            return;
+        }
         if (_hp > damage)
         {
             _hp -= damage;
             OnHit(damage);
+            return;
         }
-        else
-        {
-            _hp = 0;
-            OnDead();
-        }
+        _hp = 0;
+        OnDead();
     }
 
     /// <summary>
@@ -168,6 +191,7 @@ public class PlayerManager : MonoBehaviour,IDamage
     /// <param name="damage">ダメージ値</param>
     void OnHit(int damage)
     {
+        if (damage == 0) return;
         _anim.Play(damage > bigDamageAmount ? "BigDamage" : "Damage");
         MotorShaker.Instance.Call(ShakeType.Damage);
         SoundManager.Instance.PlayPlayerHit();
@@ -187,12 +211,16 @@ public class PlayerManager : MonoBehaviour,IDamage
     /// プレイヤーを回復する
     /// </summary>
     /// <param name="damage">回復量(マイナス値)</param>
-    void Heal(int damage)
+    /// <returns>回復したかどうか</returns>
+    public bool Heal(int damage)
     {
+        if (_hp == _maxhp || damage == 0) return false;
         _hp -= damage;
         if (_hp >= _maxhp) _hp = _maxhp;
-        Instantiate(_healEffect, transform.position, Quaternion.identity);
+        Instantiate(_healEffect, transform.position, Quaternion.identity,transform);
         SoundManager.Instance.PlayHeal();
+        UpdateHpDisplay();
+        return true;
     }
 
     /// <summary>
@@ -212,6 +240,16 @@ public class PlayerManager : MonoBehaviour,IDamage
     }
 
     /// <summary>
+    /// プレイヤーの防御力を変化させる
+    /// </summary>
+    /// <param name="defenceupRate">防御力補正値</param>
+    /// <param name="time">補正時間</param>
+    public void ChangeDefenceValue(float defenceupRate,float time)
+    {
+        _defenceValue.ChangeValue(defenceupRate, time);
+    }
+
+    /// <summary>
     /// ムテキ時間を変更する
     /// </summary>
     /// <param name="invisibleRate">変更割合</param>
@@ -220,9 +258,6 @@ public class PlayerManager : MonoBehaviour,IDamage
     {
         StartCoroutine(_invisibleTime.ChangeValue(invisibleRate, time));
     }
-
-    /// <summary>回避可能かどうか</summary>
-    bool ActiveDodge = false;
     /// <summary>
     /// 通常回避時に呼ばれるプレイヤームテキ処理
     /// </summary>
@@ -230,10 +265,8 @@ public class PlayerManager : MonoBehaviour,IDamage
     IEnumerator Invisible()
     {
         IsInvisible = true;
-        ActiveDodge = true;
         yield return new WaitForSeconds(_invisibleTime.Value);
         IsInvisible = false;
-        ActiveDodge = false;
     }
 
     const int normalLayer = 8;
@@ -269,11 +302,25 @@ public class PlayerManager : MonoBehaviour,IDamage
         animators.ForEach(x => {
             x.speed = _slowRate;
         });
-        //DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 1, 0.5f);
+        DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 1, 0.5f);
         playerState = PlayerState.Invisible;
+        _playerAttackController.CheckPlayerState();
         yield return new WaitForSeconds(_changeTime);
-        //DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 0, 0.5f);
-        if(animators.Count != 0)animators.ForEach(x => x.speed = 1);
+        DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 0, 0.5f);
         playerState = PlayerState.Default;
+        _playerAttackController.CheckPlayerState();
+        if (animators.Count != 0)animators.ForEach(x => x.speed = 1);
     }
+
+    #region ITarget
+    public Vector3 GetTargetPos()
+    {
+        return transform.position;
+    }
+
+    public string GetTargetTag()
+    {
+        return tag;
+    }
+    #endregion
 }
