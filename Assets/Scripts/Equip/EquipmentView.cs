@@ -27,6 +27,8 @@ public class EquipmentView : MonoBehaviour
     void Start()
     {
         SetInformations();
+        SetBulletDetailExplainInformations();
+        SetSkillDetailExplainInformations();
     }
     public void SetInformation(int id)
     {
@@ -51,7 +53,7 @@ public class EquipmentView : MonoBehaviour
     public void SetSkillDetailExplainInformations()
     {
         var instance = ServiceLocator.GetInstance<EquipDataPresenter>();
-        for (int i = 0; i < instance.GetBulletLength(); i++)
+        for (int i = 0; i < instance.GetSkillLength(); i++)
         {
             _equipmentDetailInformations[i].SkillName.text = instance.GetSkillData(i).SkillName;
             _equipmentDetailInformations[i].SkillExplainContext.text = instance.GetSkillData(i).ExplainText;

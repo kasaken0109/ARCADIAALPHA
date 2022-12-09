@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 public class EquipmentManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class EquipmentManager : MonoBehaviour
                var gm = GameObject.Find("GM");
                 if (!gm) gm = new GameObject("GM");
                 instance = gm.AddComponent<EquipmentManager>();
+                //instance.Init();
                 DontDestroyOnLoad(instance);
             }
             return instance;
@@ -31,12 +33,17 @@ public class EquipmentManager : MonoBehaviour
     public int Point { get; set; }
 
     GameObject _currentSword = default;
+
+    void Init()
+    {
+        //ÉfÅ[É^Çälìæ
+        _bulletReactiveCollection.AddTo(this);
+
+    }
     public void SetSword(GameObject sword)
     {
         _currentSword = sword;
     }
-
-    [HideInInspector]
     public Bullet[] Equipments {
         get
         {
@@ -48,6 +55,7 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    ReactiveCollection<Bullet> _bulletReactiveCollection = new ReactiveCollection<Bullet>();
     Bullet[] _equipments = new Bullet[3];
 
     private int _equipID = 1;
@@ -57,6 +65,7 @@ public class EquipmentManager : MonoBehaviour
     public void SetEquipments(Bullet bullet)
     {
         Equipments[_equipID] = bullet;
+        //_bulletReactiveCollection[_equipID] = bullet;
     }
 
     public void SetSkill(CustomSkill skill)

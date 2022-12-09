@@ -22,4 +22,14 @@ public class EquipDataSender : MonoBehaviour
         equipPresenter.SendBulletData(bulletID);
         ServiceLocator.GetInstance<EquipmentView>().SetInformations();
     }
+
+    /// <summary>
+    /// 選択した弾の情報を装備、表示管理するクラスに送る
+    /// </summary>
+    public void SkillDataSet(int skillID)
+    {
+        var equipPresenter = ServiceLocator.GetInstance<EquipDataPresenter>();
+        equipPresenter.SendSkillData(skillID);
+        ServiceLocator.GetInstance<EquipmentView>().SetInformations();
+    }
 }
