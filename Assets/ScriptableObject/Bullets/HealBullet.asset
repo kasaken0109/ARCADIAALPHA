@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
   m_Name: HealBullet
   m_EditorClassIdentifier: 
+  _isUnlock: 0
+  _requirePointToUnlock: 1
   m_bullet: {fileID: 0}
   m_damage: 0
   _attackDuraration: 0
@@ -28,6 +30,7 @@ MonoBehaviour:
   m_image: {fileID: 21300000, guid: 415a131890098f74c9735a950956c8fe, type: 3}
   _equipImage: {fileID: 21300000, guid: 5456a5b09f799c3438c98dd4b812b4de, type: 3}
   _equipCoolDownImage: {fileID: 21300000, guid: edba18da1b1f46645858a830fe20e168, type: 3}
+  m_bulletID: 4
   references:
     version: 1
     00000000:

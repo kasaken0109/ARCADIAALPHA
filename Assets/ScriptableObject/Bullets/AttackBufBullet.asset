@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
   m_Name: AttackBufBullet
   m_EditorClassIdentifier: 
+  _isUnlock: 0
+  _requirePointToUnlock: 1
   m_bullet: {fileID: 6857965099626966197, guid: a57827f419a83a54698b8b96f2b5b805, type: 3}
   m_damage: 0
   _attackDuraration: 2.5
@@ -28,6 +30,7 @@ MonoBehaviour:
   m_image: {fileID: 21300000, guid: 7b02c5fe04b04a9419ae59cf12df32db, type: 3}
   _equipImage: {fileID: 21300000, guid: d0077c04192e65d40a9926a908f2bd9f, type: 3}
   _equipCoolDownImage: {fileID: 21300000, guid: 20d16854d80665a409168db3ec8b05e9, type: 3}
+  m_bulletID: 5
   references:
     version: 1
     00000000:
