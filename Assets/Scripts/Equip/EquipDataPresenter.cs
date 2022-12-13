@@ -13,7 +13,7 @@ public class EquipDataPresenter : MonoBehaviour
 
     [SerializeField]
     [Tooltip("弾のロック状況")]
-    bool[] _lockStates = default;
+    UnlockDisplayController[] _lockStates = default;
 
     [SerializeField]
     [Tooltip("データ変換用のBulletデータ")]
@@ -30,9 +30,22 @@ public class EquipDataPresenter : MonoBehaviour
         ServiceLocator.SetInstance<EquipDataPresenter>(this);
     }
 
+    public void InitUnlock()
+    {
+        for (int i = 0; i < _bullets.Length; i++)
+        {
+            _lockStates[i].UnlockDisplay(_bullets[i].IsUnlock);
+        }
+    }
+
     public int GetBulletLength() => _bullets.Length;
 
     public int GetSkillLength() => _skills.Length;
+
+    public void SetUnlock(int unlockID)
+    {
+        _lockStates[unlockID].UnlockDisplay(true);
+    }
 
     /// <summary>
     /// 弾のデータをEquipmentManagerに送信する
@@ -47,7 +60,11 @@ public class EquipDataPresenter : MonoBehaviour
             return;
 
         }
-        EquipmentManager.Instance.SetEquipments(_bullets[id]);
+        var view = ServiceLocator.GetInstance<EquipmentView>();
+        var manager = EquipmentManager.Instance;
+        view.SetEquipIcon(manager.Equipments[manager.GetEquipID].BulletID, 0);
+        manager.SetEquipments(_bullets[id]);
+        view.SetEquipIcon(id, manager.GetEquipID + 1);
     }
 
     /// <summary>

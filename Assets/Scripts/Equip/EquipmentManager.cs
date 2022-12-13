@@ -21,7 +21,7 @@ public class EquipmentManager : MonoBehaviour
                var gm = GameObject.Find("GM");
                 if (!gm) gm = new GameObject("GM");
                 instance = gm.AddComponent<EquipmentManager>();
-                //instance.Init();
+                instance.Init();
                 DontDestroyOnLoad(instance);
             }
             return instance;
@@ -34,12 +34,22 @@ public class EquipmentManager : MonoBehaviour
 
     GameObject _currentSword = default;
 
+    Bullet _currentSelected = default;
+
     void Init()
     {
         //ƒf[ƒ^‚ðŠl“¾
-        _bulletReactiveCollection.AddTo(this);
+        //_bulletReactiveCollection.AddTo(this);
+        Point += 10;
 
     }
+    public void SetCurrentSelectedBullet(Bullet current)
+    {
+        _currentSelected = current;
+    }
+
+    public Bullet GetCurrentSelectedBullet() => _currentSelected;
+
     public void SetSword(GameObject sword)
     {
         _currentSword = sword;

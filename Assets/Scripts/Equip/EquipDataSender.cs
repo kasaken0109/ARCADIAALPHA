@@ -8,7 +8,8 @@ using UnityEngine;
 /// </summary>
 public class EquipDataSender : MonoBehaviour
 {
-
+    [SerializeField]
+    GameObject _unlockPanel = default;
     private void Start()
     {
         ServiceLocator.GetInstance<EquipmentView>().SetBulletDetailExplainInformations();
@@ -19,6 +20,13 @@ public class EquipDataSender : MonoBehaviour
     public void DataSet(int bulletID)
     {
         var equipPresenter = ServiceLocator.GetInstance<EquipDataPresenter>();
+        var bullet = equipPresenter.GetBulletData(bulletID);
+        if (!equipPresenter.GetBulletData(bulletID).IsUnlock)
+        {
+            EquipmentManager.Instance.SetCurrentSelectedBullet(bullet);
+            _unlockPanel.SetActive(true);
+            return;
+        }
         equipPresenter.SendBulletData(bulletID);
         ServiceLocator.GetInstance<EquipmentView>().SetInformations();
     }

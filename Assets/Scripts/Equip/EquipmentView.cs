@@ -12,6 +12,9 @@ public class EquipmentView : MonoBehaviour
     [SerializeField]
     EquipmentDetailInformation[] _equipmentDetailInformations = default;
 
+    [SerializeField]
+    EquipImageSender[] _equiplist = default;
+
     [Header("初期化データ")]
     [Header("―――――")]
     [SerializeField]
@@ -29,6 +32,25 @@ public class EquipmentView : MonoBehaviour
         SetInformations();
         SetBulletDetailExplainInformations();
         SetSkillDetailExplainInformations();
+    }
+
+    public void SetEquipIcons()
+    {
+        var equip = EquipmentManager.Instance.Equipments;
+        for (int i = 0; i < _equiplist.Length; i++)
+        {
+             _equiplist[i].SetEquipState((EquipDisplayState)0);
+            for (int k = 0; k < equip.Length; k++)
+            {
+                if (equip[k].BulletID == i) _equiplist[i].SetEquipState((EquipDisplayState)k + 1);
+            }
+        }
+        
+    }
+
+    public void SetEquipIcon(int id,int equipDisplayState)
+    {
+        _equiplist[id].SetEquipState((EquipDisplayState)equipDisplayState);
     }
     public void SetInformation(int id)
     {
