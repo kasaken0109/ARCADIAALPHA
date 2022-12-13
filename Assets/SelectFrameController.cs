@@ -34,6 +34,6 @@ public class SelectFrameController : MonoBehaviour
             Debug.LogError("outBounds_!");
             return;
         }
-        moveRect.DOMove(_movePoints[posId].position, _duraration).SetEase(Ease.Linear).WaitForStart();
+        moveRect.DOLocalMove(_movePoints[posId].localPosition, _duraration).SetEase(Ease.Linear).WaitForStart();
     }
 }
