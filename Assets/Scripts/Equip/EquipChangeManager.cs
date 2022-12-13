@@ -22,9 +22,11 @@ public class EquipChangeManager : MonoBehaviour
     [SerializeField]
     GameObject[] _defaultSelectObject = null;
     [SerializeField]
-    GameObject[] _defaultPanel;
+    GameObject[] _defaultPanel = default;
     [SerializeField]
-    Animator _lonaDisplay;
+    GameObject _unlockPanel = default;
+    [SerializeField]
+    Animator _lonaDisplay = default;
 
     public EquipSceneState SceneState => _sceneState;
     EquipSceneState _sceneState = EquipSceneState.Default;
@@ -75,9 +77,10 @@ public class EquipChangeManager : MonoBehaviour
             switch (equipSceneState)
             {
                 case EquipSceneState.EquipMain:
+                    _unlockPanel.SetActive(false);
                     var target = (_sceneState == EquipSceneState.BulletSelect)? _uIAnimations[0] : _uIAnimations[1];
                     _defaultPanel[0].SetActive(true);
-                    _panelAnimation.BackPanel();
+                    _panelAnimation.Active();
                     _panelAnimation.SetEnableDisplayChange(false);
                     unhinderables.Add(_panelAnimation.GetComponent<IUnhinderable>());
                     if(_sceneState == EquipSceneState.Default)cameraSwitcher.SetFocus(FocusState.Drone);
@@ -93,9 +96,11 @@ public class EquipChangeManager : MonoBehaviour
                 case EquipSceneState.BulletSelect:
                     if (_sceneState == EquipSceneState.EquipMain)
                     {
-                        _panelAnimation.FadePanel();
+                        _panelAnimation.NonActive();
                         unhinderables.Add(_panelAnimation.GetComponent<IUnhinderable>());
                         _uIAnimations[0].gameObject.SetActive(true);
+                        ServiceLocator.GetInstance<EquipDataPresenter>().InitUnlock();
+                        ServiceLocator.GetInstance<EquipmentView>().SetEquipIcons();
                         _panelAnimation.SetEnableDisplayChange(true);
                         unhinderables.Add(_uIAnimations[0].GetComponent<IUnhinderable>());
                         prevSelected = EventSystem.current.currentSelectedGameObject;
@@ -105,7 +110,7 @@ public class EquipChangeManager : MonoBehaviour
                 case EquipSceneState.SkillSelect:
                     if (_sceneState == EquipSceneState.EquipMain)
                     {
-                        _panelAnimation.FadePanel();
+                        _panelAnimation.NonActive();
                         unhinderables.Add(_panelAnimation.GetComponent<IUnhinderable>());
                         _uIAnimations[1].gameObject.SetActive(true);
                         _panelAnimation.SetEnableDisplayChange(true);
@@ -128,7 +133,7 @@ public class EquipChangeManager : MonoBehaviour
     IEnumerator WaitSet(int id)
     {
         yield return new WaitForSeconds(0.4f);
-        ServiceLocator.GetInstance<SelectFrameController>().MoveFrame(id);
+        //ServiceLocator.GetInstance<SelectFrameController>().MoveFrame(id);
     }
     
 }
