@@ -65,6 +65,7 @@ public class ResultDisplay : MonoBehaviour
                     : calc <= 8 ? 3
                     : calc <= 16 ? 4
                     : 5;//(clearTime * calcValue) / maxTime;
+        EquipmentManager.Instance.Point += clearRank < 2 ? 2 : clearRank != 6 ? 1 : 0;
         switch (clearRank)
         {
             case 0:
