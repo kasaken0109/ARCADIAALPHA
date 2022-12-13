@@ -7,13 +7,13 @@ using DG.Tweening;
 public class UIAnimationController : MonoBehaviour,IUnhinderable
 {
     [SerializeField]
-    float _animTime = 1f;
+    protected float _animTime = 1f;
     [SerializeField]
-    RectTransform _hidePos;
+    protected RectTransform _hidePos;
     [SerializeField]
-    RectTransform _displayPos;
+    protected RectTransform _displayPos;
 
-    bool _isAnimEnd = false;
+    protected bool _isAnimEnd = false;
     RectTransform rectTransform;
 
     private void OnEnable()
