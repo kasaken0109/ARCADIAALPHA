@@ -7,6 +7,11 @@ using UnityEngine;
 public class Bullet : ScriptableObject
 {
     [SerializeField]
+    bool _isUnlock = true;
+    [SerializeField]
+    int _requirePointToUnlock = 1;
+
+    [SerializeField]
     [Tooltip("生成する弾")]
     GameObject m_bullet;
 
@@ -59,7 +64,12 @@ public class Bullet : ScriptableObject
     [SerializeField]
     private Sprite _equipCoolDownImage = default;
 
+    [SerializeField]
     int m_bulletID = 0;
+
+    public bool IsUnlock { get => _isUnlock; set => _isUnlock = value; }
+
+    public int RequirePointToUnlock => _requirePointToUnlock;
     public GameObject MyBullet => m_bullet;
 
     public int Damage => m_damage;
