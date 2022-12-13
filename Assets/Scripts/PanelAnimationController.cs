@@ -28,17 +28,18 @@ public  class PanelAnimationController : UIAnimationController,IUnhinderable
     }
     public void FadePanel()
     {
-        IEnumerator MovePos()
-        {
-            isReachDestination = false;
-            while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
-            {
-                _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
-                yield return null;
-            }
-            isReachDestination = true;
-        }
-        StartCoroutine(MovePos());
+        //IEnumerator MovePos()
+        //{
+        //    isReachDestination = false;
+        //    while (Mathf.Abs(_rectTransform.offsetMin.x - rightAnchor) >= threshold)
+        //    {
+        //        _rectTransform.offsetMin = new Vector2(_rectTransform.offsetMin.x + _animSpeed, originPosition.y);// _rectTransform.offsetMin.x > leftAnchor ? new Vector2(_rectTransform.offsetMin.x - 20f, originPosition.y) : new Vector2(_rectTransform.offsetMin.x + 20f, originPosition.y);
+        //        yield return null;
+        //    }
+        //    isReachDestination = true;
+        //}
+        //StartCoroutine(MovePos());
+
     }
 
     public void BackPanel()
@@ -112,17 +113,21 @@ public  class PanelAnimationController : UIAnimationController,IUnhinderable
 
     public override void Active()
     {
-        //Debug.Log("active");
-        //base.Active();
+        _isAnimEnd = false;
+        _rectTransform.DOLocalMove(base._displayPos.transform.localPosition, base._animTime)
+            .OnComplete(() => _isAnimEnd = true);
     }
 
     public override void NonActive()
     {
-        FadePanel();
+        _isAnimEnd = false;
+        _rectTransform.DOLocalMove(base._hidePos.transform.localPosition, base._animTime)
+            .OnComplete(() => _isAnimEnd = true);
     }
 
     public override bool IsHinderable()
     {
-        return isReachDestination;
+        //return isReachDestination;
+        return base._isAnimEnd;
     }
 }
