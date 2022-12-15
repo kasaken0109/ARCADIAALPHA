@@ -13,7 +13,24 @@ public class EquipSkillDisplay : MonoBehaviour
     GameObject[] _buff = default;
     [SerializeField]
     GameObject[] _debuff = default;
+    [SerializeField]
+    GroupUIAnim[] groupBuffUIActiveAnims = default;
+    [SerializeField]
+    GroupUIAnim[] groupBuffUINonActiveAnims = default;
+    [SerializeField]
+    GroupUIAnim[] groupDebuffUIActiveAnims = default;
+    [SerializeField]
+    GroupUIAnim[] groupDebuffUINonActiveAnims = default;
     EventSystem eventSystem;
+    float upperColumPos;
+    float lowerColumPos;
+
+    private void Awake()
+    {
+        ServiceLocator.SetInstance(this);
+        upperColumPos = _buff[0].transform.position.y;
+        lowerColumPos = _debuff[0].transform.position.y;
+    }
     // Start is called before the first frame update
     void OnEnable()
     {
@@ -26,8 +43,9 @@ public class EquipSkillDisplay : MonoBehaviour
         Reset();
     }
 
-    void SetSkillDisplay()
+    public void SetSkillDisplay()
     {
+        var locator = ServiceLocator.GetInstance<UIGroupAnimationController>();
         if (!EquipmentManager.Instance.Equipments[EquipmentManager.Instance.GetEquipID]) return;
         var bullet = EquipmentManager.Instance.Equipments[EquipmentManager.Instance.GetEquipID];
         switch (bullet.BulletCustomType)
@@ -35,10 +53,15 @@ public class EquipSkillDisplay : MonoBehaviour
             case BulletCustomType.Buff:
                 _all.ToList().ForEach(c => c.SetActive(false));
                 _buff.ToList().ForEach(c => c.SetActive(true));
+                locator.groupUIActiveSetAnims = groupBuffUIActiveAnims;
+                locator.groupUINonActiveSetAnims = groupBuffUINonActiveAnims;
+
                 break;
             case BulletCustomType.Debuff:
                 _all.ToList().ForEach(c => c.SetActive(false));
-                _debuff.ToList().ForEach(c => c.SetActive(true));
+                _debuff.ToList().ForEach(c => { c.SetActive(true);c.GetComponent<MovableUI>().SetDelta(true); });
+                locator.groupUIActiveSetAnims = groupDebuffUIActiveAnims;
+                locator.groupUINonActiveSetAnims = groupDebuffUINonActiveAnims;
                 IEnumerator Wait()
                 {
                     yield return new WaitForSeconds(0.3f);
@@ -53,9 +76,15 @@ public class EquipSkillDisplay : MonoBehaviour
         }
     }
 
-    private void Reset()
+    public void Reset()
     {
         _all.ToList().ForEach(c => c.SetActive(false));
+        _debuff.ToList().ForEach(c => c.GetComponent<MovableUI>().SetDelta(false));
         _all.ToList().ForEach(c => c.SetActive(true));
+    }
+
+    private void OnDestroy()
+    {
+        ServiceLocator.RemoveInstance<EquipSkillDisplay>();
     }
 }
