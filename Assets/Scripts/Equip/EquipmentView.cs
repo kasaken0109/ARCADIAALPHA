@@ -10,21 +10,26 @@ public class EquipmentView : MonoBehaviour
     EquipmentInformation[] _equipmentInformations = default;
 
     [SerializeField]
+    [Tooltip("装備の詳細情報を表示をするUIリスト")]
     EquipmentDetailInformation[] _equipmentDetailInformations = default;
 
     [SerializeField]
+    [Tooltip("装備のスロット数情報を表示をする")]
     EquipImageSender[] _equiplist = default;
 
     [Header("初期化データ")]
     [Header("―――――")]
     [SerializeField]
+    [Tooltip("デフォルト画像")]
     Sprite _defaultImage = default;
 
     [SerializeField]
+    [Tooltip("デフォルトテキスト")]
     string _defaultText = "未設定";
 
     private void Awake()
     {
+        //インスタンスを登録
         ServiceLocator.SetInstance<EquipmentView>(this);
     }
     void Start()
@@ -56,10 +61,10 @@ public class EquipmentView : MonoBehaviour
     {
         var instance = EquipmentManager.Instance.Equipments[id];
         //
-        _equipmentInformations[id].BulletImage.sprite = instance ? instance.Image : _defaultImage;
-        _equipmentInformations[id].BulletName.text = instance ? instance.Name : _defaultText;
-        _equipmentInformations[id].SkillName.text = instance ? instance.passiveSkill ? instance.PassiveSkill.SkillName : _defaultText : _defaultText;
-        _equipmentInformations[id].SkillImage.sprite = instance ? instance.passiveSkill ? instance.PassiveSkill.ImageBullet : _defaultImage : _defaultImage;
+        _equipmentInformations[id].BulletImage.sprite = instance.Image ?? _defaultImage;
+        _equipmentInformations[id].BulletName.text = instance.Name ?? _defaultText;
+        _equipmentInformations[id].SkillName.text = instance.PassiveSkill.SkillName ?? _defaultText;
+        _equipmentInformations[id].SkillImage.sprite = instance.PassiveSkill.ImageBullet ?? _defaultImage;
     }
 
     public void SetBulletDetailExplainInformations()
