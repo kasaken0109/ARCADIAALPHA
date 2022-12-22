@@ -18,6 +18,9 @@ public class AttackSetController : MonoBehaviour
     StateController[] _stateController;
     JumpAttackStateController[] _jumpAttackStates;
 
+    //一時的なもの
+    public bool IsPlayer = true;
+
     /// <summary>攻撃用のコルーチン</summary>
     Coroutine[] attackColliderCoroutine;
 
@@ -31,21 +34,31 @@ public class AttackSetController : MonoBehaviour
             AttackCollider.Add(item);
         }
         attackColliderCoroutine = new Coroutine[AttackCollider.Count];
+        if(IsPlayer)AnimActionSet();
+    }
+
+    /// <summary>
+    /// アニメーションのステート遷移時のActionを設定する
+    /// </summary>
+    private void AnimActionSet()
+    {
         _stateController = _anim.GetBehaviours<StateController>();
         _jumpAttackStates = _anim.GetBehaviours<JumpAttackStateController>();
         TryGetComponent(out _playerMove);
         foreach (var item in _stateController)
         {
-            item.SetStateEnterAction(() =>_playerMove.SetMoveActive(false));
-            item.SetStateExitAction(() => { _playerMove.SetMoveActiveDelay(true, 0f); });
+            item.SetStateEnterAction(() => _playerMove.SetMoveActive(false));
+            item.SetStateExitAction(() => { _playerMove.SetMoveActiveDelay(true, 0.5f); });
         }
         foreach (var item in _jumpAttackStates)
         {
-            item.SetStateEnterAction(() => {
+            item.SetStateEnterAction(() =>
+            {
                 _playerMove.StartFloat();
                 _anim.SetBool("IsAttackEnd", false);
             });
-            item.SetStateExitAction(() => {
+            item.SetStateExitAction(() =>
+            {
                 //_playerMove.StopFloat();
                 _anim.SetBool("IsAttackEnd", true);
             });
