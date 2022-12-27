@@ -34,10 +34,6 @@ public class PlayerMoveController : ColliderGenerater
     LayerMask _layerMask = 0;
 
     [SerializeField]
-    [Tooltip("スタンス値のSlider")]
-    Image m_slider = default;
-
-    [SerializeField]
     [Tooltip("回避ゲージ")]
     Image[] _dodgeGauges;
 
@@ -151,7 +147,7 @@ public class PlayerMoveController : ColliderGenerater
     /// </summary>
     public void Jump()
     {
-        if (!CanJump) return;
+        if (!CanJump || !IsGrounded()) return;
         _anim.SetTrigger(JumpHash);
         _anim.SetBool("IsFall", false);
         _attackController.CheckPlayerState();
@@ -177,6 +173,7 @@ public class PlayerMoveController : ColliderGenerater
     /// <param name="direction">回避方向</param>
     public void Dodge(Vector3 direction)
     {
+        Debug.Log("Call2");
         if (!IsGrounded() || dodge <= 0 || IsDodgeing) return;
 
         StartCoroutine(DisableMove());//回避中は自由に移動できないようにする
@@ -243,7 +240,8 @@ public class PlayerMoveController : ColliderGenerater
         Vector3 start = this.transform.position;   // start: オブジェクトの中心
         Vector3 end = start + Vector3.down * m_isGroundedLength;  // end: start から真下の地点
         //Debug.DrawLine(start, end); // 動作確認用に Scene ウィンドウ上で線を表示する
-        bool isGrounded = Physics.Linecast(start, end); // 引いたラインに何かがぶつかっていたら true とする
+        bool isGrounded = Physics.Linecast(start, end,out RaycastHit hit,_layerMask); // 引いたラインに何かがぶつかっていたら true とする
+        //if (hit.collider != null) Debug.Log(hit.collider.name);
         _anim.SetBool(IsGroundedHash, isGrounded);
         PlayerManager.Instance.PlayerState = isGrounded ? PlayerState.OnField : PlayerState.InAir;
         return isGrounded;
