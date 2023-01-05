@@ -1,10 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UniRx;
+public enum TutorialType
+{
+    None,
+    Look,
+    Move,
+    Attack,
+    Jump,
+    Dodge,
+    Fire,
+    All,
+}
 
+[System.Serializable]
+public class TutorialTypeReactiveProperty : ReactiveProperty<TutorialType>
+{
+    public TutorialTypeReactiveProperty(){}
+    public TutorialTypeReactiveProperty(TutorialType init):base(init) { }
+}
 /// <summary>
 /// チュートリアルの管理を行う
 /// </summary>
@@ -20,21 +37,39 @@ public class TutorialManager : MonoBehaviour
     [Tooltip("チュートリアルスキップ時に実行されるイベント")]
     UnityEvent _OnTutorialSkip = default;
 
+    [SerializeField]
+    TutorialPlayerInput _tutorialPlayerInput = default;
     /// <summary>選択状態になっているボタン</summary>
     GameObject _prev = default;
     /// <summary>チュートリアルがスキップされたか</summary>
     bool isTutorialSkipped = false;
+
+    TutorialTypeReactiveProperty _tutorialActionType = new TutorialTypeReactiveProperty();
+    TutorialTypeReactiveProperty _tutorialNavigationType = new TutorialTypeReactiveProperty();
+    IReactiveProperty<TutorialType> _tutorialReactiveProperty;
+
+    public IObservable<TutorialType> TutorialActionStateChanged => _tutorialActionType;
+    public IObservable<TutorialType> TutorialNavigationStateChanged => _tutorialNavigationType;
+
     private void Awake()
     {
         //サービスロケーターへインスタンスを登録
         ServiceLocator.SetInstance(this);
         ButtonSelect();
+        _tutorialActionType.Value = TutorialType.Look;
+        _tutorialActionType.Value = TutorialType.Move;
+        //Observable.Interval(TimeSpan.FromSeconds(0.2)).Subscribe(x => { _tutorialType.Value = (TutorialType)x + 1;});
     }
 
     private void OnDestroy()
     {
         //サービスロケーターのインスタンスを削除
         ServiceLocator.RemoveInstance<TutorialManager>();
+    }
+
+    public void ChangeTutorialType(TutorialType tutorialType)
+    {
+        _tutorialActionType.Value = tutorialType;
     }
 
     /// <summary>
