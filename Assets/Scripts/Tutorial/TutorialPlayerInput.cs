@@ -1,18 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 using UnityEngine.InputSystem;
-public enum TutorialType
-{
-    None = 0,
-    Look = 1,
-    Move = 2,
-    Attack = 4,
-    Jump = 8,
-    Dodge = 16,
-    Fire = 32,
-    All = 63,
-}
+
 public class TutorialPlayerInput : MonoBehaviour
 {
     PlayerInput _playerInput;
@@ -22,14 +13,12 @@ public class TutorialPlayerInput : MonoBehaviour
     BulletSelectController _bulletSelectController;
     CameraController _cameraController;
     OptionData _optionData;
-    TutorialType _tutorialType = TutorialType.Look;
-    TutorialType _preTutorialType = TutorialType.Look;
+    //TutorialType _preTutorialType = TutorialType.Look;
 
     Vector3 dir;
 
     private void Awake()
     {
-        _tutorialType = _tutorialType | TutorialType.Move;
         TryGetComponent(out _playerInput);
         TryGetComponent(out _playerMove);
         TryGetComponent(out _playerAttack);
@@ -39,25 +28,20 @@ public class TutorialPlayerInput : MonoBehaviour
         _cameraController = FindObjectOfType<CameraController>();
     }
 
+    private void Start()
+    {
+        ServiceLocator.GetInstance<TutorialManager>().TutorialActionStateChanged.Subscribe(x => SetTutorialMove(x));
+    }
+
 
     void OnEnable()
     {
-        _playerInput.actions["Jump"].started += OnJump;
-        _playerInput.actions["Fire"].started += OnFire;
-        _playerInput.actions["Fire"].canceled += OnFireCanceled;
-        _playerInput.actions["Dodge"].started += OnDodge;
-        _playerInput.actions["Attack"].started += OnAttack;
-        _playerInput.actions["Option"].started += OnMenu;
-        _playerInput.actions["Equip1"].started += OnEquip1;
-        _playerInput.actions["Equip2"].started += OnEquip2;
-        _playerInput.actions["Equip3"].started += OnEquip3;
-        _playerInput.actions["LockOn"].performed += OnLockOn;
-        // NewTest a = new NewTest();
-        //a.Player.Move.performed += contexet => _playerControll.Move(Vector3.zero); 
+        _optionData.CamaraResume();
     }
 
     private void OnDisable()
     {
+        _optionData.CamaraStop();
         _playerInput.actions["Jump"].started -= OnJump;
         _playerInput.actions["Fire"].started -= OnFire;
         _playerInput.actions["Fire"].canceled += OnFireCanceled;
@@ -73,25 +57,57 @@ public class TutorialPlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_tutorialType.HasFlag((TutorialType)2)) return;
+        //if (!_tutorialType.HasFlag((TutorialType)2)) return;
+        //Move();
+    }
+
+    private void Move()
+    {
         var direction = _playerInput.actions["Move"].ReadValue<Vector2>();
         dir = new Vector3(direction.x, 0, direction.y);
         _playerMove.Move(dir);
     }
-    public void SetTutorialMove()
-    {
 
+    public void SetTutorialMove(TutorialType tutorialType)
+    {
+        switch (tutorialType)
+        {
+            case TutorialType.None:
+                this.enabled = false;
+                break;
+            case TutorialType.Look:
+                _playerInput.actions["LockOn"].performed += OnLockOn;
+                break;
+            case TutorialType.Move:
+                _playerInput.actions["Option"].started += OnMenu;
+                Observable.EveryFixedUpdate().Subscribe(_ => Move());
+                break;
+            case TutorialType.Attack:
+                _playerInput.actions["Attack"].started += OnAttack;
+                break;
+            case TutorialType.Jump:
+                _playerInput.actions["Jump"].started += OnJump;
+                break;
+            case TutorialType.Dodge:
+                _playerInput.actions["Dodge"].started += OnDodge;
+                break;
+            case TutorialType.Fire:
+                _playerInput.actions["Fire"].started += OnFire;
+                _playerInput.actions["Fire"].canceled += OnFireCanceled;
+                _playerInput.actions["Equip1"].started += OnEquip1;
+                _playerInput.actions["Equip2"].started += OnEquip2;
+                _playerInput.actions["Equip3"].started += OnEquip3;
+                break;
+        };
     }
     private void OnJump(InputAction.CallbackContext obj)
     {
-        if (!_tutorialType.HasFlag((TutorialType)8)) return;
         _playerMove.Jump();
     }
 
     bool IsFireing = false;
     private void OnFire(InputAction.CallbackContext obj)
     {
-        if (!_tutorialType.HasFlag((TutorialType)32)) return;
         IsFireing = true;
         StartCoroutine(AssaltMode());
         IEnumerator AssaltMode()
@@ -117,12 +133,10 @@ public class TutorialPlayerInput : MonoBehaviour
 
     private void OnDodge(InputAction.CallbackContext obj)
     {
-        if (!_tutorialType.HasFlag((TutorialType)16)) return;
         _playerMove.Dodge(dir);
     }
     private void OnAttack(InputAction.CallbackContext obj)
     {
-        if (!_tutorialType.HasFlag((TutorialType)4)) return;
         _playerAttack.AttackSignal();
     }
 
