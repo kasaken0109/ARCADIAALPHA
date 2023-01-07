@@ -28,6 +28,8 @@ public class PlayerAttackController : MonoBehaviour
 
     ICondition current;
 
+    PlayerState prev = PlayerState.OnField;
+
     int playIndex = 0;
 
     float endTimer = 0;
@@ -39,21 +41,24 @@ public class PlayerAttackController : MonoBehaviour
         ChangeAttackSet(_attackNormalSets);
         _attackPower = new BufferParameter(1f);
     }
-    void Update()
+    void FixedUpdate()
     {
         var state = current.Check();
-        //Debug.Log(current);
+        StatePlay(state);
+    }
+
+    private void StatePlay(ConditionState state)
+    {
         switch (state)
         {
             case ConditionState.Running:
-                //Debug.Log("Running");
                 break;
             case ConditionState.Success:
-                //Debug.Log("Succ");
-                _anim.CrossFade(_currentSets[playIndex]._NextStateName,0,0,0,0.3f);
+                _playerMove.SetMoveActive(false);
+                _anim.CrossFade(_currentSets[playIndex]._NextStateName, 0, 0, 0, 0.3f);
                 //_anim.Play(_currentSets[playIndex]._NextStateName);
                 current.Reset();
-                if(playIndex == _currentSets.Length - 1)
+                if (playIndex == _currentSets.Length - 1)
                 {
                     playIndex = 0;
                     if (endTimer < _endDuraration)
@@ -62,28 +67,24 @@ public class PlayerAttackController : MonoBehaviour
                     }
                     else
                     {
+                        endTimer = 0;
+                        _playerMove.SetMoveActive(true);
                         current = _currentSets[playIndex]._condition;
                         current.IsSuccess = false;
                         current.Reset();
                     }
+                    return;
                 }
-                else
-                {
-                    playIndex += 1; 
-                    current = _currentSets[playIndex]._condition;
-                    current.IsSuccess = false;
-                    current.Reset();
-                }
+                playIndex += 1;
+                current = _currentSets[playIndex]._condition;
+                current.IsSuccess = false;
+                current.Reset();
                 break;
             case ConditionState.Failure:
-                //if (!isPlayFailureState) {
-                //    _anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
-                //    isPlayFailureState = true;
-                //}
-                //_anim.CrossFade(_currentSets[playIndex]._FailedStateName, 0, 0, 0, 0.3f);
                 current.Reset();
+                _playerMove.SetMoveActive(true);
                 playIndex = 0;
-                CheckPlayerState();
+                //CheckPlayerState();
                 current = _currentSets[playIndex]._condition;
                 break;
         }
@@ -110,13 +111,15 @@ public class PlayerAttackController : MonoBehaviour
 
     public void AttackSignal()
     {
-        //CheckPlayerState();
+        ChangePlayerState();
         current.IsSuccess = true;
     }
 
-    public void CheckPlayerState()
+    public void ChangePlayerState()
     {
-        switch (PlayerManager.Instance.PlayerState)
+        var state = PlayerManager.Instance.PlayerState;
+        if (state == prev) return;
+        switch (state)
         {
             case PlayerState.OnField:
                 ChangeAttackSet(_attackNormalSets);
@@ -130,6 +133,7 @@ public class PlayerAttackController : MonoBehaviour
             default:
                 break;
         }
+        prev = state;
     }
 
     public void ChangeAttackPower(float value, float time)
