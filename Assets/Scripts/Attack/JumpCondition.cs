@@ -27,7 +27,7 @@ public class JumpCondition : ICondition
         timer += Time.deltaTime;
         //Debug.Log($"timer:{timer},_beginPoint:{_beginPoint}");
         //Debug.Log(isSuccess);
-        if (timer >= _beginPoint && timer <= _beginPoint + _checkDuraration && isSuccess && PlayerManager.Instance.PlayerState == PlayerState.InAir)
+        if (timer >= _beginPoint && timer <= _beginPoint + _checkDuraration && isSuccess)// && PlayerManager.Instance.PlayerState == PlayerState.InAir)
         {
             //Debug.Log($"timer:{timer},_beginPoint:{_beginPoint}");
             state = ConditionState.Success;
