@@ -304,11 +304,11 @@ public class PlayerManager : MonoBehaviour, IDamage, ITarget
         });
         DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 1, 0.5f);
         playerState = PlayerState.Invisible;
-        _playerAttackController.CheckPlayerState();
+        _playerAttackController.ChangePlayerState();
         yield return new WaitForSeconds(_changeTime);
         DOTween.To(() => _volume.weight, (x) => _volume.weight = x, 0, 0.5f);
         playerState = PlayerState.Default;
-        _playerAttackController.CheckPlayerState();
+        _playerAttackController.ChangePlayerState();
         if (animators.Count != 0)animators.ForEach(x => x.speed = 1);
     }
 

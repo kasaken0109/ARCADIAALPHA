@@ -15,6 +15,9 @@ public class DroneController : MonoBehaviour
     [Tooltip("追跡対象のオブジェクト")]
     GameObject m_chaseTarget = default;
     [SerializeField]
+    [Tooltip("追跡対象のオブジェクト")]
+    GameObject m_chaseRotationTarget = default;
+    [SerializeField]
     [Tooltip("対象との距離")]
     Vector3 m_chaseOffset = default;
     [SerializeField]
@@ -129,7 +132,7 @@ public class DroneController : MonoBehaviour
     /// </summary>
     void LookPlayer()
     {
-        _droneAnim.rotation = GameManager.Player.transform.rotation;
+        _droneAnim.rotation = m_chaseRotationTarget.transform.rotation;
     }
 
     float time = 0;
