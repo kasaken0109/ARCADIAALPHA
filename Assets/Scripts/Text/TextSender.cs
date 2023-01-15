@@ -11,10 +11,13 @@ public class TextSender : MonoBehaviour
     [SerializeField]
     float _sendTime = 1f;
     Text _display = default;
+
+    public bool IsCompleted => _isCompleted;
+    bool _isCompleted = false;
     private void Awake()
     {
         TryGetComponent(out _display);
-        SendText("これは_<color=green>カイリュー</color>_です");
+        //SendText("これは_<color=green>カイリュー</color>_です");
         Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => SkipText());
     }
 
@@ -24,6 +27,7 @@ public class TextSender : MonoBehaviour
     {
         IEnumerator DelayShowText(string text)
         {
+            _isCompleted = false;
             _display.text = "";
             for (int i = 0; i < text.Length; i++)
             {
@@ -31,6 +35,7 @@ public class TextSender : MonoBehaviour
                 {
                     _display.text = text.Replace("_","");
                     isSkipped = false;
+                    _isCompleted = true;
                     yield break;
                 }
                 if (text[i] == '_' && isStart)
@@ -54,6 +59,7 @@ public class TextSender : MonoBehaviour
                 _display.text += text[i];
                 yield return new WaitForSeconds(_sendTime);
             }
+            _isCompleted = true;
         }
         StartCoroutine(DelayShowText(displayText));
     }
