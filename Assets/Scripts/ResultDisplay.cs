@@ -18,6 +18,10 @@ public class ResultDisplay : MonoBehaviour
     GameObject _rankLabel = default;
 
     [SerializeField]
+    [Tooltip("ランクのテキストオブジェクト")]
+    GameObject _pointLabel = default;
+
+    [SerializeField]
     [Tooltip("アニメーションさせる画像オブジェクト")]
     RectTransform[] _moveObjs = default;
 
@@ -31,7 +35,7 @@ public class ResultDisplay : MonoBehaviour
 
     [SerializeField]
     [Tooltip("獲得ポイント表示用のテキスト")]
-    Image _point = default;
+    Text _point = default;
 
     [SerializeField]
     [Tooltip("ランクの画像素材")]
@@ -49,6 +53,17 @@ public class ResultDisplay : MonoBehaviour
     [Tooltip("シーン遷移用のボタン表示まで待つ時間")]
     float _waitDisplay = 1f;
 
+    [SerializeField]
+    [Tooltip("シーン遷移用のボタン表示まで待つ時間")]
+    float _waitDelay = 0.75f;
+
+    [SerializeField]
+    [Tooltip("シーン遷移用のボタン表示まで待つ時間")]
+    float _waitDelayText = 0.25f;
+
+    [SerializeField]
+    Ease _animType = Ease.OutSine;
+
     /// <summary>クリアまでにかかった時間</summary>
     int clearTime;
     /// <summary>獲得ポイント</summary>
@@ -58,9 +73,11 @@ public class ResultDisplay : MonoBehaviour
     /// <summary>表示遅延用のWaitForSeconds</summary>
     WaitForSeconds delayDisplay = new WaitForSeconds(0.5f);
 
+    Sequence anim = default;
     void Start()
     {
         SetRank();
+        DisplayResult();
     }
 
     /// <summary>
@@ -89,7 +106,7 @@ public class ResultDisplay : MonoBehaviour
         int seconds = time % 60;
         int minutes = time / 60;
         int hours = time / 3600;
-        return $"{hours}:{minutes}:{seconds}";
+        return $"{hours.ToString("D2")}：{minutes.ToString("D2")}：{seconds.ToString("D2")}";
     }
 
 
@@ -103,17 +120,19 @@ public class ResultDisplay : MonoBehaviour
         Sequence anim = DOTween.Sequence()
             .Append(_moveObjs[0].DOLocalMoveY(0, _slideInDuraration))
             .Join(_moveObjs[1].DOLocalMoveY(0, _slideInDuraration))
-            .Join(_fadeIcon.DOFade(1f, _slideInDuraration))
+            .Join(_fadeIcon.DOFade(0.4f, _slideInDuraration))
             .AppendInterval(_waitDisplay)
             .Append(_moveObjs[2].DOLocalMoveX(0, _slideInDuraration))
-            .AppendInterval(_waitDisplay)
+            .AppendInterval(_waitDelayText)
             .AppendCallback(() => _timeDisplay.text = ConvertDisplayTimeText(clearTime))
             .AppendInterval(_waitDisplay)
             .Append(_moveObjs[3].DOLocalMoveX(0, _slideInDuraration))
-            .AppendCallback(() => _timeDisplay.text = ConvertDisplayTimeText(clearTime))
-            .AppendInterval(_waitDisplay)
+            .AppendInterval(_waitDelayText)
+            .AppendCallback(() => _pointLabel.SetActive(true))
+            .AppendCallback(() => _point.text = getPoint.ToString())
+            .AppendInterval(_waitDelay)
             .AppendCallback(() => _rankLabel.SetActive(true))
-            .AppendInterval(_waitDisplay)
+            .AppendInterval(_waitDelay)
             .AppendCallback(() => _rank.enabled = true)
             .AppendInterval(_waitDisplay)
             .AppendCallback(() =>
@@ -121,5 +140,11 @@ public class ResultDisplay : MonoBehaviour
                 _buttons[0].SetActive(true);
                 _buttons[1].SetActive(true);
             });
+        anim.Play();
+    }
+
+    private void OnDestroy()
+    {
+        anim.Kill();
     }
 }
