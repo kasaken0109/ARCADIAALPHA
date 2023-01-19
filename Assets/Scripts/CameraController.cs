@@ -14,8 +14,11 @@ public class CameraController : MonoBehaviour
     [Tooltip("プレイヤーのカメラ")]
     CinemachineVirtualCamera m_playerCamera = default;
 
+    [SerializeField]
+    float _maxLockOnDistance = 5f;
+
     /// <summary>ロックオン機能の対象</summary>
-    private Transform[] m_lockOnTargets;
+    private List<Transform> m_lockOnTargets;
 
     /// <summary>プレイヤー</summary>
     private GameObject m_player;
@@ -68,12 +71,16 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void LockOff()
     {
-        m_playerCamera.transform.LookAt(m_lockOnTargets[lockOnId]);
-        m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
+        if (m_lockOnTargets.Count > 1 && m_lockOnTargets[lockOnId])
+        {
+            m_playerCamera.transform.LookAt(m_lockOnTargets[lockOnId]);
+            m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
+        }
         m_playerCamera.GetCinemachineComponent<CinemachinePOV>().GetRecenterTarget();
         ResetCam();
         m_lockOnCamera.Priority = 0;
         lockOnId = 0;
+        if (m_lockOnTargets.Count > 0) m_lockOnTargets.Clear();
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
     }
 
@@ -86,24 +93,58 @@ public class CameraController : MonoBehaviour
     {
         if (!IsLockOn)
         {
-            lockOnId = lockOnId == m_lockOnTargets.Length - 1 ? 0 : lockOnId + 1;
-            m_lockOnCamera.LookAt = m_lockOnTargets[lockOnId];
-            m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
-            m_lockOnCamera.Priority = cameraPriority;
+            m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
+            //if (m_lockOnTargets.Count == 0)
+            //{
+            //    m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().CamReset(RetargetTargetCam);
+            //    return;
+            //}
+            //lockOnId = lockOnId == m_lockOnTargets.Length - 1 ? 0 : lockOnId + 1;
+            LockOnCamera();
         }
         else LockOff();
         IsLockOn = !IsLockOn;
     }
 
-    /// <summary>
-    /// ロックオン対象の敵がいなくなった時の処理を行う
-    /// </summary>
-    public void RetargetTargetCam()
+    private void LockOnCamera()
     {
-        if (!IsLockOn) return;
+        if(m_lockOnTargets.Count == 0)
+        {
+            LockOff();
+            return;
+        }
+        if (!m_lockOnTargets[lockOnId])
+        {
+            SwitchTarget(true);
+            return;
+        }
+        m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ResetCam(() =>
+        {
+            m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
+            lockOnId = 0;
+            LockOnCamera();
+            //SwitchTarget(true);
+        });
+        m_lockOnCamera.LookAt = m_lockOnTargets[lockOnId];
+        m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
+        m_lockOnCamera.Priority = cameraPriority;
+    }
+
+    public void SwitchTarget(bool isPrev)
+    {
+        if (!IsLockOn || SetSearchTarget<ILockOnTargetable>("Enemy").Count == 1) return;
+        if (SetSearchTarget<ILockOnTargetable>("Enemy").Count == 0) LockOff();
+        if (m_lockOnTargets[lockOnId])
+        {
+            Debug.Log(m_lockOnTargets[lockOnId]);
+            m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
+        }
+        else lockOnId = 0;
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
-        if (m_lockOnTargets.Length == 0) LockOff();
-        else LockON();
+        lockOnId = isPrev ? 
+            lockOnId == 0 ? m_lockOnTargets.Count - 1: --lockOnId
+            :lockOnId == m_lockOnTargets.Count - 1 ? 0 : ++lockOnId;
+        LockOnCamera();
     }
 
     ///// <summary>
@@ -122,9 +163,10 @@ public class CameraController : MonoBehaviour
     /// </summary>
     /// <param name="tag">対象タグ名</param>
     /// <returns>ロックオン対象のオブジェクト(プレイヤーとの距離が近い順)</returns>
-    public Transform[] SetSearchTarget<T>(string lockOnTag) where T : ILockOnTargetable
+    public List<Transform> SetSearchTarget<T>(string lockOnTag) where T : ILockOnTargetable
     {
+        //if (m_lockOnTargets.Count > 0) m_lockOnTargets.Clear();
         var target = GameObject.FindGameObjectsWithTag(lockOnTag);
-        return target.ToList().Where(c => c.GetComponent<ILockOnTargetable>() != null).Select(c => c.GetComponent<ILockOnTargetable>().GetCamPoint()).OrderBy(t => Vector3.Distance(m_player.transform.position, t.position)).ToArray();//OrderBy(t => Vector3.Distance(m_player.transform.position,t.gameObject.transform.position)).ToList();
+        return target.Where(c => c.GetComponent<ILockOnTargetable>() != null && Vector3.Distance(c.transform.position,transform.position) <= _maxLockOnDistance).Select(c => c.GetComponent<ILockOnTargetable>().GetCamPoint()).OrderBy(t => Vector3.Distance(m_player.transform.position, t.position)).ToList();//OrderBy(t => Vector3.Distance(m_player.transform.position,t.gameObject.transform.position)).ToList();
     }
 }
