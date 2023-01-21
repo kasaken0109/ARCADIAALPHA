@@ -6,6 +6,8 @@ public class SwitchOperationDisplay : MonoBehaviour
 {
     [SerializeField]
     GameObject[] _operationDisplays = default;
+    [SerializeField]
+    GameObject[] _operationImageDisplays = default;
 
     int currentID = 0;
     // Start is called before the first frame update
@@ -18,8 +20,23 @@ public class SwitchOperationDisplay : MonoBehaviour
         }
     }
 
+    public void SwitchOperationImage(int id,float displayDuraration = 3f)
+    {
+        IEnumerator DelayNonActive()
+        {
+            Debug.Log(id);
+            for (int i = 0; i < _operationImageDisplays.Length; i++)
+            {
+                _operationImageDisplays[i].SetActive(i == id);
+            }
+            yield return new WaitForSeconds(displayDuraration);
+            _operationImageDisplays[id].SetActive(false);
+        }
+        StartCoroutine(DelayNonActive());
+    }
+
     public void SetEnebleUI(bool isActive)
     {
-        _operationDisplays[currentID].SetActive(false);
+        _operationDisplays[currentID].SetActive(isActive);
     }
 }
