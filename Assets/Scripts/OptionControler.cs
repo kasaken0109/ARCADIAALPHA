@@ -13,11 +13,15 @@ public class OptionControler : MonoBehaviour
     Slider _bgm;
 
     [SerializeField]
+    Slider _camera;
+
+    [SerializeField]
     Selectable _selectable;
 
     EventSystem eventSystem;
     void OnEnable()
     {
+        Debug.Log("Awake");
         eventSystem = FindObjectOfType<EventSystem>();
         _se.Select();
         ///‰¹—Ê‚ðslider‚Ì’l‚É”½‰f‚³‚¹‚é
@@ -29,6 +33,11 @@ public class OptionControler : MonoBehaviour
     void OnDisable()
     {
         _selectable.Select();
+        PlayerPrefs.SetFloat("CameraX", _camera.value);
+        PlayerPrefs.SetFloat("CameraY", _camera.value);
+        PlayerPrefs.Save();
+
+        FindObjectOfType<OptionData>()?.SetSensitivity(new Vector2(_camera.value, _camera.value));
     }
 
     /// <summary>
@@ -45,5 +54,15 @@ public class OptionControler : MonoBehaviour
     public void SetBGM()
     {
         SoundManager.Instance.SetBGMVolume(_bgm.value);
+        Debug.Log(_bgm.value);
+    }
+
+    public void SetCameraSens()
+    {
+        PlayerPrefs.SetFloat("CameraX", _camera.value);
+        PlayerPrefs.SetFloat("CameraY", _camera.value);
+        PlayerPrefs.Save();
+
+        FindObjectOfType<OptionData>()?.SetSensitivity(new Vector2(_camera.value,_camera.value));
     }
 }
