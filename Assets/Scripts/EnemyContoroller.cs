@@ -19,11 +19,14 @@ public class EnemyContoroller : MonoBehaviour
     private GameObject m_effect;
     
     [SerializeField]
-    private GameObject m_finalBreath;
+    private GameObject _needlePrefab;
     
     [SerializeField]
-    private Transform m_spwanBreath;
-    
+    private Transform _spwanNeedle;
+
+    [SerializeField]
+    private int _needleAttackPower = 50;
+
     [SerializeField]
     private Transform m_spwanEffect;
 
@@ -39,7 +42,20 @@ public class EnemyContoroller : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
 
-    public void BasicAttack() => transform.DOMove(transform.position + transform.forward * 2, 0.2f);
+    public void BasicAttack()
+    {
+        var target = GameObject.FindGameObjectWithTag("Player");
+        if (!target) return;
+        var dir = target.transform.position - transform.position;
+        dir.y = 0;
+        transform.DOMove(transform.position + dir.normalized * 2, 0.4f);
+    }
+
+    public void GenerateNeedle()
+    {
+        var instance = Instantiate(_needlePrefab, _spwanNeedle.position, Quaternion.identity);
+        instance.GetComponent<AttackcolliderController>().AttackPower = _needleAttackPower;
+    }
 
     public void BasicAttackEffect()
     {
@@ -52,13 +68,6 @@ public class EnemyContoroller : MonoBehaviour
     {
         transform.LookAt(GameManager.Player.transform);
         transform.DOMove(gameObject.transform.position + gameObject.transform.forward * 3, 1f);
-    }
-
-    public void JumpAttack()
-    {
-        agent.SetDestination(GameManager.Player.transform.position);
-        agent.speed = 20;
-        agent.acceleration = 100;
     }
 
     public void SetPosition() => agent.SetDestination(transform.position);
