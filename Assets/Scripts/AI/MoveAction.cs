@@ -8,10 +8,15 @@ public class MoveAction : ActionBase
 {
     public float moveSpeed = 5f;
 
+    public float moveTime = 5f;
+
+    public float Tolerance = 0.5f;
+
     NavMeshAgent _navi = default;
     Transform _target = default;
     Animator _anim = default;
-
+    float timer = 0;
+    float distance = 0;
     public override bool IsEndAction { get; protected set; }
 
     public override IEnumerator Execute(Transform target,EnemyAI enemyAI)
@@ -19,11 +24,20 @@ public class MoveAction : ActionBase
         IsEndAction = false;
         _target = enemyAI.GetComponentInstance<Transform>();
         _navi = enemyAI.GetComponentInstance<NavMeshAgent>();
+        _navi.isStopped = false;
         _navi.destination = target.transform.position;
         _navi.speed = moveSpeed;
         enemyAI.GetComponentInstance<Animator>().SetFloat("Speed", moveSpeed);
-        yield return new WaitUntil(() => Vector3.Distance(target.position, _target.position) <= _navi.stoppingDistance + 0.5f);// _navi.isStopped);
+        do
+        {
+            distance = Vector3.Distance(target.position, _target.position);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        while (distance >= _navi.stoppingDistance + Tolerance || timer < moveTime);
         enemyAI.GetComponentInstance<Animator>().SetFloat("Speed", 0);
+        _navi.destination = _target.transform.position;
+        _navi.isStopped = true;
         IsEndAction = true;
     }
 
@@ -36,6 +50,7 @@ public class MoveAction : ActionBase
     {
         _navi.SetDestination(_target.position);
         _anim.SetFloat("Speed", 0);
+        _navi.isStopped = true;
         IsEndAction = true;
     }
 }

@@ -14,7 +14,7 @@ public class ClawAttackAction : ActionBase
         IsEndAction = false;
         var anim = enemyAI.GetComponentInstance<Animator>();
         anim.Play(StateName[0]);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.5f);
         var combo = Random.Range(0, 3);
         anim.SetInteger("Combo", combo);
         yield return new WaitForSeconds(AnimTime[combo]);
