@@ -25,13 +25,16 @@ public class CameraController : MonoBehaviour
 
 
     /// <summary>カメラ切り替え時に使用するpriority</summary>
-    private readonly int cameraPriority = 15;
+    private readonly int cameraPriority = 50;
 
     /// <summary>現在ロックオンしている敵のID</summary>
     private int lockOnId = 0;
 
     private CinemachinePOV _cinemachinePOV;
 
+    bool isMonoLoclOn = false;
+
+    Transform _prevTarget = default;
 
     // Start is called before the first frame update
     void Start()
@@ -52,6 +55,12 @@ public class CameraController : MonoBehaviour
     private void CamInit()
     {
         m_player = GameObject.FindGameObjectWithTag("Player");
+        //if(GameObject.FindGameObjectsWithTag("Enemy").Where(x => x.GetComponent<ILockOnTargetable>() != null).Count() == 1)
+        //{
+        //    Debug.Log("SwitchMono");
+        //    isMonoLoclOn = true;
+        //}
+        IsLockOn = false;
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
         _cinemachinePOV = m_playerCamera.GetCinemachineComponent<CinemachinePOV>();
         lockOnId = 0;
@@ -62,8 +71,20 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void ResetCam()
     {
+        if (_prevTarget != null)
+        {
+            m_playerCamera.ForceCameraPosition((_prevTarget.position - m_playerCamera.transform.position) * 0.5f, Quaternion.LookRotation(_prevTarget.position - m_playerCamera.transform.position));
+            return;
+        }
         _cinemachinePOV.m_VerticalAxis.Value = 0;
         _cinemachinePOV.m_HorizontalAxis.Value = -180;
+    }
+
+    public float PlanePointAngleDeg(Vector3 from ,Vector3 to,Vector3 planeNormal)
+    {
+        var fromPlane = Vector3.ProjectOnPlane(from, planeNormal);
+        var toPlane = Vector3.ProjectOnPlane(to, planeNormal);
+        return Vector3.SignedAngle(fromPlane, toPlane, planeNormal) * Mathf.Rad2Deg;
     }
 
     /// <summary>
@@ -84,22 +105,40 @@ public class CameraController : MonoBehaviour
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
     }
 
-    bool IsLockOn;
+    bool IsLockOn = false;
+    bool IsFirstLockOn = false;
 
     /// <summary>
     /// ロックオン機能を起動、起動中は対象を切り替える
     /// </summary>
     public void LockON()
     {
+        var target = GameObject.FindGameObjectsWithTag("Enemy").Where(x => x.GetComponent<ILockOnTargetable>() != null);
+        if (target.Count() == 1)
+        {
+            isMonoLoclOn = true; 
+            _prevTarget = target.First().transform;
+            if (IsLockOn)
+            {
+                m_lockOnCamera.Priority = 0;
+                m_playerCamera.GetCinemachineComponent<CinemachinePOV>().GetRecenterTarget();
+                m_lockOnTargets[0].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
+                ResetCam();
+            }
+            else
+            {
+                m_lockOnTargets.Clear();
+                m_lockOnTargets.Add(target.First().transform);
+                m_lockOnCamera.LookAt = m_lockOnTargets[0];
+                m_lockOnTargets[0].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
+                m_lockOnCamera.Priority = cameraPriority;
+            }
+            IsLockOn = !IsLockOn;
+            return;
+        }
         if (!IsLockOn)
         {
             m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
-            //if (m_lockOnTargets.Count == 0)
-            //{
-            //    m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().CamReset(RetargetTargetCam);
-            //    return;
-            //}
-            //lockOnId = lockOnId == m_lockOnTargets.Length - 1 ? 0 : lockOnId + 1;
             LockOnCamera();
         }
         else LockOff();
@@ -118,12 +157,11 @@ public class CameraController : MonoBehaviour
             SwitchTarget(true);
             return;
         }
-        m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ResetCam(() =>
+        _prevTarget = m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ResetCam(() =>
         {
             m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
             lockOnId = 0;
             LockOnCamera();
-            //SwitchTarget(true);
         });
         m_lockOnCamera.LookAt = m_lockOnTargets[lockOnId];
         m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
@@ -132,11 +170,10 @@ public class CameraController : MonoBehaviour
 
     public void SwitchTarget(bool isPrev)
     {
-        if (!IsLockOn || SetSearchTarget<ILockOnTargetable>("Enemy").Count == 1) return;
+        if (!IsLockOn || isMonoLoclOn) return;
         if (SetSearchTarget<ILockOnTargetable>("Enemy").Count == 0) LockOff();
         if (m_lockOnTargets[lockOnId])
         {
-            Debug.Log(m_lockOnTargets[lockOnId]);
             m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
         }
         else lockOnId = 0;
@@ -146,17 +183,6 @@ public class CameraController : MonoBehaviour
             :lockOnId == m_lockOnTargets.Count - 1 ? 0 : ++lockOnId;
         LockOnCamera();
     }
-
-    ///// <summary>
-    ///// 特定のコンポーネントを持つオブジェクを検索する、重いのであまり多用しない
-    ///// </summary>
-    ///// <typeparam name="T"></typeparam>
-    ///// <returns></returns>
-    //public GameObject[] SetSearchTarget<T>() where T : Component
-    //{
-    //    return FindObjectsOfType<GameObject>();
-    //}
-
 
     /// <summary>
     /// 対象のタグを持つルートオブジェクトを検索する
