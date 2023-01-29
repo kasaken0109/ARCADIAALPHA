@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ChraractorDisplayController : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("キャラクターの回転速度")]
-    float _rotateSpeed = 0.1f;
+    //[SerializeField]
+    //[Tooltip("キャラクターの回転速度")]
+    //float _rotateSpeed = 0.1f;
     // Start is called before the first frame update
     void FixedUpdate()
     {
