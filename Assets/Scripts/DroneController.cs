@@ -23,6 +23,8 @@ public class DroneController : MonoBehaviour
     [SerializeField]
     Transform _droneAnim = default;
     [SerializeField]
+    Transform _targetAnim = default;
+    [SerializeField]
     [Tooltip("追跡を開始する距離")]
     float _offset = 0.5f;
     [SerializeField]
@@ -98,6 +100,13 @@ public class DroneController : MonoBehaviour
         _droneAnim.transform.rotation = Quaternion.LookRotation(diff); //Quaternion.Slerp(_droneAnim.rotation, lookAngle, 0.2f * Time.deltaTime);
     }
 
+    public void LookEnemy(Vector3 attackTarget)
+    {
+        Vector3 diff = attackTarget - transform.position;
+        Quaternion lookAngle = Quaternion.LookRotation(diff);
+        _droneAnim.transform.rotation = Quaternion.LookRotation(diff); //Quaternion.Slerp(_droneAnim.rotation, lookAngle, 0.2f * Time.deltaTime);
+    }
+
     public void ChangeMode(DroneMode droneMode)
     {
         switch (droneMode)
@@ -132,14 +141,14 @@ public class DroneController : MonoBehaviour
     /// </summary>
     void LookPlayer()
     {
-        _droneAnim.rotation = m_chaseRotationTarget.transform.rotation;
+        _droneAnim.rotation = _targetAnim.transform.rotation;
     }
 
     float time = 0;
     Vector3 moveOrigin;
     public void BuffMovement(float moveTime)
     {
-        var movementTime = moveTime - 1f;
+        var movementTime = moveTime - 1f < 0 ? 0.5f :moveTime - 1f;
         time = 0;
         moveOrigin = transform.position;
         Vector3 turnStartPos = new Vector3(_bottomRadius * Mathf.Cos(anglePlus / 180f * Mathf.PI), _bottomHeight, _bottomRadius * Mathf.Sin(anglePlus / 180f * Mathf.PI));

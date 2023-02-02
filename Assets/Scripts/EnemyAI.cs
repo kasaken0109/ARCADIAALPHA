@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
+using DG.Tweening;
 
 public enum EnemyState
 {
@@ -53,9 +54,23 @@ public class EnemyAI : MonoBehaviour
     ActionSheet[] _BackFarActionSheet = default;
     EnemyState _enemyState = EnemyState.OutOfCombat;
 
+    ActionBase action;
     Coroutine current = null;
-    bool isEnable = true; 
+    bool isEnable = true;
+    Rigidbody _rb = default;
     Dictionary<System.Type, object> _componentInstance = new Dictionary<System.Type, object>();
+
+    public void SetAIActive(bool isActive)
+    {
+        if (!isEnable)
+        {
+            if (current != null)StopCoroutine(current);
+            action.Reset();
+        }
+        isEnable = isActive;
+        _navMeshAgent.isStopped = !isActive;
+        _rb.constraints = isActive ? RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ : RigidbodyConstraints.FreezeAll;
+    }
     void SetComponentInstance<T> (T instance) where T : Component
     {
         _componentInstance[typeof(T)] = instance;
@@ -68,6 +83,7 @@ public class EnemyAI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        TryGetComponent(out _rb);
         SetComponentInstance(_navMeshAgent);
         SetComponentInstance(_anim);
         SetComponentInstance(transform);
@@ -76,23 +92,29 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator ExecuteAI()
     {
-        while (isEnable)
+        yield return new WaitForSeconds(2f);
+        while (true)
         {
-            ActionBase action = ActionProbabilitySet(SetSheet());
-            if (current != null)
+            if (isEnable)
             {
-                StopCoroutine(current);
-                current = null;
+                action = ActionProbabilitySet(SetSheet());
+                if (current != null)
+                {
+                    StopCoroutine(current);
+                    current = null;
+                }
+                _navMeshAgent.isStopped = true;
+                current = StartCoroutine(action.Execute(_target.transform, this));
+                yield return new WaitUntil(() => action.IsEndAction);
+                action.Reset();
             }
-            current = StartCoroutine(action.Execute(_target.transform, this));
-            yield return new WaitUntil(() => action.IsEndAction);
-            action.Reset();
+            else yield return new WaitForSeconds(0.2f);
         }
     }
 
     ActionSheet[] SetSheet()
     {
-        var isFar = Vector3.Distance(_target.transform.position, transform.position) >= 5f;
+        var isFar = Vector3.Distance(_target.transform.position, transform.position) >= 4f;
         Vector3 localFrontToWorld = transform.TransformDirection(Vector3.forward);
         Vector3 relative = _target.transform.position - transform.position;
         var angle = Vector3.Angle(localFrontToWorld, relative);
@@ -122,6 +144,11 @@ public class EnemyAI : MonoBehaviour
         int value = Random.Range(0,100);
         //Debug.Log(percent[value]);
         return actionSheets[percent[value]].action;
+    }
+
+    public void LookAt(float time = 1f)
+    {
+        transform.DOLookAt(_target.transform.position, time);
     }
 
     public void StopAction()
