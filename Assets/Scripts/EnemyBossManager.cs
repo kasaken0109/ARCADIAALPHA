@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UniRx;
 using BehaviourAI;
+using System;
 
 /// <summary>
 /// 敵の状態を管理する
@@ -24,7 +26,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
 
     [SerializeField]
     [Tooltip("怯み値")]
-    [Range(1, 100)]
+    [Range(1, 9999)]
     int m_rate;
 
     [SerializeField]
@@ -36,12 +38,18 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     float m_stunTime = 8f;
 
     [SerializeField]
+    int _basicAttackPower = 80;
+
+    [SerializeField]
     [Tooltip("毒状態に発生するエフェクト")]
     GameObject _poison = default;
 
     [SerializeField]
     [Tooltip("Animator")]
     Animator m_animator = null;
+
+    [SerializeField]
+    AttackSetController _attackSetController = default;
 
     [SerializeField]
     [Tooltip("死亡時に発生する死体")]
@@ -58,6 +66,9 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     [SerializeField]
     Image hpSlider;
 
+    [SerializeField]
+    RectTransform hpFrame;
+
     bool IsCritical = false;//特殊攻撃のフラグ
 
     int maxHp;
@@ -70,6 +81,8 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     const float actionHpRateHalf = 0.5f;
     const float actionHpRateLittle = 0.2f;
 
+
+
     GameObject me;
 
     Cinemachine.CinemachineImpulseSource impulseSource;
@@ -80,6 +93,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
 
     #endregion
 
+    public Subject<Unit> OnResetCam;
     void Awake()
     {
         Instance = this;
@@ -87,6 +101,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
         TryGetComponent(out impulseSource);
         me = gameObject;
         stun = m_stun;
+        OnResetCam = new Subject<Unit>().AddTo(this);
     }
 
     public void AddDamage(int damage,ref GameObject call)
@@ -103,49 +118,49 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
             StartCoroutine(HitStop());
             MotorShaker.Instance.Call(ShakeType.Hit, coefficient * damage / maxHp);
         }
-        
-        if (m_hp < maxHp * actionHpRateHalf && count == 0)
-        {
-            StartCoroutine(nameof(DeathCombo));
-        }
-        else if (m_hp < maxHp * actionHpRateLittle && count == 1)
-        {
-            StopCoroutine(nameof(DeathCombo));
-            StartCoroutine(nameof(DeathCombo));
-        }
         if (m_hp > damage)
         {
             m_hp -= damage;
-            DOTween.To(
-                () => hpSlider.fillAmount, // getter
-                x => hpSlider.fillAmount = x, // setter
-                (float)(float)m_hp / maxHp, // ターゲットとなる値
-                0.3f  // 時間（秒）
-                ).SetEase(Ease.OutCubic);
+            UpdateHpDisplay();
             hitRate += damage;
-            if(hitRate >= m_rate)
+            if (hitRate >= m_rate)
             {
                 m_animator.SetInteger(hpHash, 1);
                 m_animator.SetTrigger("Hit");
                 hitRate = 0;
             }
+            return;
         }
-        else
-        {
-            m_hp = 0;
-            StopCoroutine(HitStop());
-            Time.timeScale = 1;
-            DOTween.To(
-                () => hpSlider.fillAmount, // getter
-                x => hpSlider.fillAmount = x, // setter
-                (float)(float)0, // ターゲットとなる値
-                0.3f  // 時間（秒）
-                ).SetEase(Ease.OutCubic);
-            Instantiate(m_deathBody,this.transform.position,this.transform.rotation);
-            FindObjectOfType<CameraController>().RetargetTargetCam();
-            GameManager.Instance.SetGameState(GameState.PLAYERWIN);
-            Destroy(this.gameObject);
-        }
+        Dead();
+    }
+
+    private void UpdateHpDisplay()
+    {
+        DOTween.To(
+                    () => hpSlider.fillAmount, // getter
+                    x => hpSlider.fillAmount = x, // setter
+                    (float)(float)m_hp / maxHp, // ターゲットとなる値
+                    0.3f  // 時間（秒）
+                    ).SetEase(Ease.InFlash);
+        hpFrame.transform.DOShakePosition(0.5f, 20, 100);
+    }
+
+    private void Dead()
+    {
+        m_hp = 0;
+        StopCoroutine(HitStop());
+        Time.timeScale = 1;
+        DOTween.To(
+            () => hpSlider.fillAmount, // getter
+            x => hpSlider.fillAmount = x, // setter
+            (float)(float)0, // ターゲットとなる値
+            0.3f  // 時間（秒）
+            ).SetEase(Ease.InFlash);
+        hpSlider.transform.DOShakePosition(0.5f);
+        Instantiate(m_deathBody, this.transform.position, this.transform.rotation);
+        GameManager.Instance.SetGameState(GameState.PLAYERWIN);
+        OnResetCam?.OnNext(Unit.Default);
+        Destroy(this.gameObject);
     }
 
     /// <summary>
@@ -159,28 +174,11 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
         yield return new WaitForSeconds(0.1f);
         Time.timeScale = 1;
     }
-
-    IEnumerator DeathCombo()
-    {
-        IsCritical = true;
-        count++;
-        rateTemp = hitRate;
-        hitRate = -500;
-        float distance = Vector3.Distance(GameManager.Player.transform.position, gameObject.transform.position);
-        
-        int type = distance >= 7 ? 5 : 4;
-        m_animator.SetTrigger("DeathAttack");
-        m_animator.SetInteger("AttackType", type);
-        yield return new WaitForSeconds(2f);
-        IsCritical = false;
-        hitRate = rateTemp;
-    }
-
-    IEnumerator SlipDamage(int slipValue, float slipInterval,float slipDuraration)
+    IEnumerator SlipDamage(int slipValue, float slipInterval,float slipDuraration,Transform hitPos)
     {
         float time = 0;
         float intervalTime = 0;
-        _poison.SetActive(true);
+        _poison?.SetActive(true);
         while (time <= slipDuraration)
         {
             time += Time.deltaTime;
@@ -192,14 +190,17 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
                 intervalTime = 0;
             }
         }
-        _poison.SetActive(false);
+        _poison?.SetActive(false);
 
     }
-
+    public void SetAttackColliderEnemy(AttackData attackData)
+    {
+        _attackSetController.ActiveAttackCollider(attackData.ActiveColliderIndex, attackData.ActiveDuarration, (int)(attackData.AttackRate * _basicAttackPower));
+    }
     public void StunChecker(int value)
     {
         stun = stun >= value ? stun -= value : 0;
-        if (stun == 0)
+        if (stun == 0 && !m_stunEffect.activeInHierarchy)
         {
             Stun();
             stun = m_stun;
@@ -210,22 +211,21 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     {
         IEnumerator StunCoroutine()
         {
+            m_animator.SetBool("IsStun",true);
             m_stunEffect.SetActive(true);
-            GetComponent<CreatureAI>().enabled = false;
+            GetComponent<EnemyAI>().SetAIActive(false);
             yield return new WaitForSeconds(m_stunTime);
-            GetComponent<CreatureAI>().enabled = true;
+            GetComponent<EnemyAI>().SetAIActive(true);
             m_stunEffect.SetActive(false);
+            m_animator.SetBool("IsStun", false);
         }
         StartCoroutine(StunCoroutine());
     }
 
-    public void AddSlipDamage(int slipValue, float slipInterval, float slipDuraration)
+    public void AddSlipDamage(int slipValue, float slipInterval, float slipDuraration,Transform hitPos)
     {
-        StartCoroutine(SlipDamage(slipValue,slipInterval,slipDuraration));
+        StartCoroutine(SlipDamage(slipValue,slipInterval,slipDuraration,hitPos));
     }
-
-    public void SpawnEffects() => m_sandEffect.SetActive(true);
-
     public void ShowLockOnIcon()
     {
         _lockOnIcon.SetActive(true);
@@ -239,5 +239,10 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     public void HideLockOnIcon()
     {
         _lockOnIcon.SetActive(false);
+    }
+    public Transform ResetCam(Action action)
+    {
+        OnResetCam.Subscribe(_=> action?.Invoke()).AddTo(this);
+        return _camPoint; 
     }
 }
