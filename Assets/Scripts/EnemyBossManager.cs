@@ -81,7 +81,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
     const float actionHpRateHalf = 0.5f;
     const float actionHpRateLittle = 0.2f;
 
-
+    Vector3 originHpPos = default;
 
     GameObject me;
 
@@ -102,6 +102,7 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
         me = gameObject;
         stun = m_stun;
         OnResetCam = new Subject<Unit>().AddTo(this);
+        originHpPos = hpFrame.transform.position;
     }
 
     public void AddDamage(int damage,ref GameObject call)
@@ -142,7 +143,8 @@ public class EnemyBossManager : MonoBehaviour, IDamage,IStun,IFlameBurn,ILockOnT
                     (float)(float)m_hp / maxHp, // ターゲットとなる値
                     0.3f  // 時間（秒）
                     ).SetEase(Ease.InFlash);
-        hpFrame.transform.DOShakePosition(0.5f, 20, 100);
+        hpFrame.transform.DOShakePosition(0.5f, 20, 100)
+            .OnComplete(() => hpFrame.transform.position = originHpPos);
     }
 
     private void Dead()
