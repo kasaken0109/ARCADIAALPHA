@@ -26,6 +26,8 @@ public class BarriaDisplay : MonoBehaviour,IDamage
     [SerializeField]
     [Tooltip("破壊時に起こるイベント")]
     UnityEvent _hitEvent = null;
+    [SerializeField]
+    float _rotateSpeed = 0.1f;
 
     /// <summary>現在の体力</summary>
     int hp = 0;
@@ -42,12 +44,14 @@ public class BarriaDisplay : MonoBehaviour,IDamage
         if(hp > damage)
         {
             hp -= damage;
+            SoundManager.Instance.PlayBarriaDamage();
             Instantiate(_damage, transform.position, transform.rotation);
             _fragileEffect.SetActive(hp == 1);
         }
         else
         {
             hp = 0;
+            SoundManager.Instance.PlayBarriaFade();
             Instantiate(_crush,transform.position,transform.rotation);
             gameObject.SetActive(false); 
             _hitEvent?.Invoke();
@@ -68,6 +72,7 @@ public class BarriaDisplay : MonoBehaviour,IDamage
     void Update()
     {
         //バリアを付けたオブジェクトの位置を追従させる
-        transform.position = _chasePoint.position;
+        transform.position = _chasePoint.position + Vector3.up * 0.89f;
+        transform.Rotate(Vector3.up * _rotateSpeed);
     }
 }

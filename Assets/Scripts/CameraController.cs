@@ -34,6 +34,11 @@ public class CameraController : MonoBehaviour
 
     bool isMonoLoclOn = false;
 
+    bool canLockOn = false;
+
+    bool IsLockOn = false;
+    bool IsFirstLockOn = false;
+
     Transform _prevTarget = default;
 
     // Start is called before the first frame update
@@ -55,11 +60,6 @@ public class CameraController : MonoBehaviour
     private void CamInit()
     {
         m_player = GameObject.FindGameObjectWithTag("Player");
-        //if(GameObject.FindGameObjectsWithTag("Enemy").Where(x => x.GetComponent<ILockOnTargetable>() != null).Count() == 1)
-        //{
-        //    Debug.Log("SwitchMono");
-        //    isMonoLoclOn = true;
-        //}
         IsLockOn = false;
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
         _cinemachinePOV = m_playerCamera.GetCinemachineComponent<CinemachinePOV>();
@@ -71,11 +71,13 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void ResetCam()
     {
-        if (_prevTarget != null)
+        if (_prevTarget != null && canLockOn)
         {
-            m_playerCamera.ForceCameraPosition((_prevTarget.position - m_playerCamera.transform.position) * 0.5f, Quaternion.LookRotation(_prevTarget.position - m_playerCamera.transform.position));
+            //m_playerCamera.transform.LookAt(_prevTarget);
+            m_playerCamera.ForceCameraPosition((_prevTarget.position + m_playerCamera.transform.position) * 0.5f, Quaternion.LookRotation(_prevTarget.position - m_playerCamera.transform.position));
             return;
         }
+        m_lockOnCamera.Priority = 0;
         _cinemachinePOV.m_VerticalAxis.Value = 0;
         _cinemachinePOV.m_HorizontalAxis.Value = -180;
     }
@@ -97,16 +99,17 @@ public class CameraController : MonoBehaviour
             m_playerCamera.transform.LookAt(m_lockOnTargets[lockOnId]);
             m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
         }
-        m_playerCamera.GetCinemachineComponent<CinemachinePOV>().GetRecenterTarget();
         ResetCam();
+        Invoke(nameof(ResetCamData), 0f);
+    }
+
+    void ResetCamData()
+    {
         m_lockOnCamera.Priority = 0;
         lockOnId = 0;
         if (m_lockOnTargets.Count > 0) m_lockOnTargets.Clear();
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
     }
-
-    bool IsLockOn = false;
-    bool IsFirstLockOn = false;
 
     /// <summary>
     /// ロックオン機能を起動、起動中は対象を切り替える
@@ -114,14 +117,23 @@ public class CameraController : MonoBehaviour
     public void LockON()
     {
         var target = GameObject.FindGameObjectsWithTag("Enemy").Where(x => x.GetComponent<ILockOnTargetable>() != null);
+        if (target.Count() > 0)
+        {
+            canLockOn = true;
+        }
+        else return;
         if (target.Count() == 1)
         {
             isMonoLoclOn = true; 
             _prevTarget = target.First().transform;
+            _prevTarget = target.First().GetComponentInParent<ILockOnTargetable>().ResetCam(() =>
+            {
+                canLockOn = false;
+                ResetCam();
+            });
             if (IsLockOn)
             {
                 m_lockOnCamera.Priority = 0;
-                m_playerCamera.GetCinemachineComponent<CinemachinePOV>().GetRecenterTarget();
                 m_lockOnTargets[0].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
                 ResetCam();
             }
@@ -160,6 +172,12 @@ public class CameraController : MonoBehaviour
         _prevTarget = m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ResetCam(() =>
         {
             m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
+            if(m_lockOnTargets.Count == 0)
+            {
+                canLockOn = false;
+                ResetCam();
+                return;
+            }
             lockOnId = 0;
             LockOnCamera();
         });
@@ -170,9 +188,9 @@ public class CameraController : MonoBehaviour
 
     public void SwitchTarget(bool isPrev)
     {
-        if (!IsLockOn || isMonoLoclOn) return;
+        if (!IsLockOn || isMonoLoclOn || !canLockOn) return;
         if (SetSearchTarget<ILockOnTargetable>("Enemy").Count == 0) LockOff();
-        if (m_lockOnTargets[lockOnId])
+        if (m_lockOnTargets.Count != 0 &&  m_lockOnTargets.Count - 1 >= lockOnId)
         {
             m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
         }
