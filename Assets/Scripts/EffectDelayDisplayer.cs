@@ -22,6 +22,7 @@ public class EffectDelayDisplayer : MonoBehaviour
         IEnumerator Spawn()
         {
             yield return new WaitForSeconds(_delayTime);
+            SoundManager.Instance.PlayBuff();
             var m = Instantiate(_effect,transform);
             Destroy(gameObject, DelayDestroy);
         }
