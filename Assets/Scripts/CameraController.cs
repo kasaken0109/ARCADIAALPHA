@@ -116,7 +116,7 @@ public class CameraController : MonoBehaviour
     /// </summary>
     public void LockON()
     {
-        var target = GameObject.FindGameObjectsWithTag("Enemy").Where(x => x.GetComponent<ILockOnTargetable>() != null);
+        var target = SetSearchTarget<ILockOnTargetable>("Enemy");
         if (target.Count() > 0)
         {
             canLockOn = true;
