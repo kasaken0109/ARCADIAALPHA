@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using System.Linq;
+using UniRx;
 
 public class CameraController : MonoBehaviour
 {
@@ -32,15 +33,23 @@ public class CameraController : MonoBehaviour
 
     private CinemachinePOV _cinemachinePOV;
 
+    ReactiveProperty<Transform> _lockOnTarget;
+    public Transform OnLockOnTragetchange => _lockOnTarget.Value;
+
     bool isMonoLoclOn = false;
 
     bool canLockOn = false;
 
-    bool IsLockOn = false;
-    bool IsFirstLockOn = false;
+    public bool IsLockOn => isLockOn;
 
+    bool isLockOn = false;
+    bool IsFirstLockOn = false;
     Transform _prevTarget = default;
 
+    private void Awake()
+    {
+        _lockOnTarget = new ReactiveProperty<Transform>().AddTo(this);
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -60,7 +69,7 @@ public class CameraController : MonoBehaviour
     private void CamInit()
     {
         m_player = GameObject.FindGameObjectWithTag("Player");
-        IsLockOn = false;
+        isLockOn = false;
         m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
         _cinemachinePOV = m_playerCamera.GetCinemachineComponent<CinemachinePOV>();
         lockOnId = 0;
@@ -131,7 +140,7 @@ public class CameraController : MonoBehaviour
                 canLockOn = false;
                 ResetCam();
             });
-            if (IsLockOn)
+            if (isLockOn)
             {
                 m_lockOnCamera.Priority = 0;
                 m_lockOnTargets[0].GetComponentInParent<ILockOnTargetable>().HideLockOnIcon();
@@ -142,19 +151,20 @@ public class CameraController : MonoBehaviour
                 m_lockOnTargets.Clear();
                 m_lockOnTargets.Add(target.First().transform);
                 m_lockOnCamera.LookAt = m_lockOnTargets[0];
+                _lockOnTarget.Value = m_lockOnTargets[0];
                 m_lockOnTargets[0].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
                 m_lockOnCamera.Priority = cameraPriority;
             }
-            IsLockOn = !IsLockOn;
+            isLockOn = !isLockOn;
             return;
         }
-        if (!IsLockOn)
+        if (!isLockOn)
         {
             m_lockOnTargets = SetSearchTarget<ILockOnTargetable>("Enemy");
             LockOnCamera();
         }
         else LockOff();
-        IsLockOn = !IsLockOn;
+        isLockOn = !isLockOn;
     }
 
     private void LockOnCamera()
@@ -182,13 +192,14 @@ public class CameraController : MonoBehaviour
             LockOnCamera();
         });
         m_lockOnCamera.LookAt = m_lockOnTargets[lockOnId];
+        _lockOnTarget.Value = m_lockOnCamera.LookAt;
         m_lockOnTargets[lockOnId].GetComponentInParent<ILockOnTargetable>().ShowLockOnIcon();
         m_lockOnCamera.Priority = cameraPriority;
     }
 
     public void SwitchTarget(bool isPrev)
     {
-        if (!IsLockOn || isMonoLoclOn || !canLockOn) return;
+        if (!isLockOn || isMonoLoclOn || !canLockOn) return;
         if (SetSearchTarget<ILockOnTargetable>("Enemy").Count == 0) LockOff();
         if (m_lockOnTargets.Count != 0 &&  m_lockOnTargets.Count - 1 >= lockOnId)
         {

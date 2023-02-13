@@ -30,14 +30,7 @@ public class AudioController : MonoBehaviour
     /// </summary>
     public void PlayFootstepSE()
     {
-        if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Walk"))
-        {
-            _source.PlayOneShot(m_sounds[0]);
-        }
-        else if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Run"))
-        {
-            _source.PlayOneShot(m_sounds[1]);
-        }
+        _source.PlayOneShot(m_sounds[1],0.3f);
     }
 
     /// <summary>
@@ -51,7 +44,7 @@ public class AudioController : MonoBehaviour
     /// <summary>
     /// 近接通常攻撃の音を鳴らす
     /// </summary>
-    public void PlaySlashSE()
+    public void PlayJumpDownSE()
     {
         _source.PlayOneShot(m_sounds[3]);
     }
@@ -59,8 +52,13 @@ public class AudioController : MonoBehaviour
     /// <summary>
     /// 近接特殊攻撃の音を鳴らす
     /// </summary>
-    public void PlaySpecialSlashSE()
+    public void PlaySlashSE()
     {
         _source.PlayOneShot(m_sounds[4]);
+    }
+
+    public void PlaySE(int index)
+    {
+        _source.PlayOneShot(m_sounds[index]);
     }
 }
