@@ -1548,7 +1548,9 @@ MonoBehaviour:
   _waitDisplay: 0.5
   _waitDelay: 0.75
   _waitDelayText: 0.25
+  _result: {fileID: 8300000, guid: 479f351eef449ea40a861e8d69da4c6f, type: 3}
   _animType: 3
+  _playWin: {fileID: 8300000, guid: 5381ed9483f0e304a81064c401ea97d2, type: 3}
 --- !u!114 &1431741732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1561,7 +1563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecd439f62de02f848bc67eaa9e24a765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bgm: {fileID: 8300000, guid: 69846deb1397c59408cc9b3bacd76c27, type: 3}
+  _bgm: {fileID: 0}
   _canSetSE: 1
 --- !u!1 &1511373643
 GameObject:
