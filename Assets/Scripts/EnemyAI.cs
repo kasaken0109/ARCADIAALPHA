@@ -1,10 +1,11 @@
-//using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
 using DG.Tweening;
+using UniRx;
 
 public enum EnemyState
 {
@@ -60,6 +61,17 @@ public class EnemyAI : MonoBehaviour
     Rigidbody _rb = default;
     Dictionary<System.Type, object> _componentInstance = new Dictionary<System.Type, object>();
 
+    ReactiveProperty<float> _actionSpeed = new ReactiveProperty<float>(1);
+    public IObservable<float> ActionSpeed => _actionSpeed;
+
+    public float GetActionSpeed() => _actionSpeed.Value;
+    public void SetActionSpeed(float value)
+    {
+        Debug.Log(value);
+       _actionSpeed.Value = value;
+        _anim.speed = value;
+    }
+
     public void SetAIActive(bool isActive)
     {
         isEnable = isActive;
@@ -93,6 +105,7 @@ public class EnemyAI : MonoBehaviour
         SetComponentInstance(_anim);
         SetComponentInstance(transform);
         gameObject.SetActive(false);
+        _actionSpeed.AddTo(this);
     }
 
     private void OnEnable()
@@ -109,6 +122,7 @@ public class EnemyAI : MonoBehaviour
     {
         while (isEnable)
         {
+            //Debug.Log(_anim.speed);
             action = ActionProbabilitySet(SetSheet());
             current = StartCoroutine(action.Execute(_target.transform, this));
             yield return new WaitUntil(() => action.IsEndAction);
@@ -145,7 +159,7 @@ public class EnemyAI : MonoBehaviour
                 index++;
             }
         }
-        int value = Random.Range(0,100);
+        int value = UnityEngine.Random.Range(0,100);
         //Debug.Log(percent[value]);
         return actionSheets[percent[value]].action;
     }
