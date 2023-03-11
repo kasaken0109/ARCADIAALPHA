@@ -15,10 +15,10 @@ MonoBehaviour:
   _isUnlock: 0
   _requirePointToUnlock: 1
   m_bullet: {fileID: 8793247929548138974, guid: 1175a3cef95b982488bd439c48efc084, type: 3}
-  m_damage: 10
+  m_damage: 12
   _attackDuraration: 2
   _isPermanence: 0
-  m_delay: 5
+  m_delay: 3
   m_consumeStanceValue: 0.5
   _bulletCustomType: 4
   passiveSkill: {fileID: 0}

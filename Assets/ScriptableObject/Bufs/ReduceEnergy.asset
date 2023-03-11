@@ -16,9 +16,10 @@ MonoBehaviour:
     id: 0
   consumeCost: 0
   skillType: 0
-  explainText: "MP\u306E\u6D88\u8CBB\u91CF\u3092\u6E1B\u5C11\u3055\u305B\u308B"
-  skillName: "MP\u6D88\u8CBB\u91CF\u30C0\u30A6\u30F3"
+  explainText: "EP\u306E\u6D88\u8CBB\u91CF\u3092\u6E1B\u5C11\u3055\u305B\u308B"
+  skillName: "EP\u6D88\u8CBB\u91CF\u30C0\u30A6\u30F3"
   image: {fileID: 21300000, guid: d2fca4d5de574d94cab843064fbdfc6e, type: 3}
+  questImage: {fileID: 21300000, guid: 89da1efab69bde84bb7268be3d1b645f, type: 3}
   m_effect: {fileID: 0}
   references:
     version: 1

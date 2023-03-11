@@ -15,20 +15,42 @@ MonoBehaviour:
   _audioMixerBGM: {fileID: 24300002, guid: 45a9da712a056fe4a97f7fbc22feb070, type: 2}
   _audioMixerSE: {fileID: 24300002, guid: defb97d7c7ddf0d489d9d3ac77f5dca5, type: 2}
   m_click:
-  - {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
-  - {fileID: 0}
-  m_frostWall: {fileID: 0}
-  m_playerHit: {fileID: 0}
-  m_roar: {fileID: 0}
-  m_shoot: {fileID: 0}
-  m_heal: {fileID: 8300000, guid: 95dc07c4edccb05469e48d5dfa28f6ce, type: 3}
-  m_fireB: {fileID: 0}
-  m_move: {fileID: 0}
+  - {fileID: 8300000, guid: da1d8b842d525a544a7a433728f0ebf8, type: 3}
+  - {fileID: 8300000, guid: 64a48af496ce5cb409d5d7f5eccfd62d, type: 3}
+  - {fileID: 8300000, guid: 6f31034a8886230499d64a149af65485, type: 3}
+  - {fileID: 8300000, guid: a776e17ebfa700b40bf525f6853da3cc, type: 3}
+  - {fileID: 8300000, guid: f05d16da876600f4cb440c6705be28cf, type: 3}
+  - {fileID: 8300000, guid: 979b854d1cc8b22498d47ad2486e68e0, type: 3}
+  - {fileID: 8300000, guid: fd6da0d4eeeb24248bf67afbdcd913d4, type: 3}
+  m_buff: {fileID: 8300000, guid: d8aaabff0c6f1594aa1b1df48ea69f06, type: 3}
+  m_buffmove: {fileID: 8300000, guid: 01193864e80b52a4db3c4e236a8f4e32, type: 3}
+  m_playerHit: {fileID: 8300000, guid: 69fe627470af01146b2fcc8f5346d917, type: 3}
+  m_playerBigHit: {fileID: 8300000, guid: b4fd732fc3c021c439ee8c47d86d4cae, type: 3}
+  m_roar: {fileID: 8300000, guid: bd9952966ad7fd04ebf7d96d41fb4ef8, type: 3}
+  m_shoot: {fileID: 8300000, guid: f8b2bc0d1feba0f4481dca602dda19a9, type: 3}
+  m_heal: {fileID: 8300000, guid: a09a2e0606016ee4eb39e3d2e48d5e5d, type: 3}
+  m_changeB: {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
+  m_move: {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
   m_dodge: {fileID: 8300000, guid: 2b393c351cb23cf42bf7555d94f22e13, type: 3}
-  m_kick: {fileID: 8300000, guid: 623b7ca9a311ed343a90d1f53f1e2720, type: 3}
-  m_blizzard: {fileID: 0}
-  m_god: {fileID: 0}
-  m_charge: {fileID: 0}
-  m_emptyBullet: {fileID: 0}
+  m_chaseP: {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
+  m_hitSlip: {fileID: 8300000, guid: 2b393c351cb23cf42bf7555d94f22e13, type: 3}
+  m_god: {fileID: 8300000, guid: 85aa03818f4d00441ba3d6dce1ee6047, type: 3}
+  m_godEnd: {fileID: 8300000, guid: 8146380766a7ee64c970aed667015deb, type: 3}
+  m_charge: {fileID: 8300000, guid: 9847ff636695387458f722324d7f6b88, type: 3}
+  m_rotateSlot: {fileID: 8300000, guid: 7e82349abdad2f5438e9dcf52365db6d, type: 3}
+  m_emptyEp: {fileID: 8300000, guid: f758a9faf627ab34b935824c4530b324, type: 3}
+  m_textScroll: {fileID: 8300000, guid: 894d1f13e878edc448daf958302b4236, type: 3}
+  m_taskClear: {fileID: 8300000, guid: 1b73462bde710ef4e917ac5672c81bec, type: 3}
+  m_chatOpen: {fileID: 8300000, guid: 825f567a5d56e9f42ae3e2bafa6ff050, type: 3}
+  m_chatClose: {fileID: 8300000, guid: 4d2748a4777cefc4aa23463ba4e12526, type: 3}
+  m_chatButton: {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
+  m_droneDestroy: {fileID: 8300000, guid: 70d53476e4de46a44b0522cb81be73ee, type: 3}
+  m_barriaGenarate: {fileID: 8300000, guid: 519e1e41a84b33341ace8e6dc8c17c49, type: 3}
+  m_barriaDamage: {fileID: 8300000, guid: f936ec113869f414bb3c647f6160fb64, type: 3}
+  m_barriaFade: {fileID: 8300000, guid: 23fe1332392c97040be422f0d67441de, type: 3}
+  m_ranks:
+  - {fileID: 8300000, guid: b33d411da8c97a5458ddc5fdb196931b, type: 3}
+  - {fileID: 8300000, guid: 9c66369001e0acf41ada7b45386b2a39, type: 3}
+  - {fileID: 8300000, guid: 69a58323a5a5f49429c7f56c1d7ff0b2, type: 3}
   m_seVolume: 0
   m_bgmVolume: 0

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: "\u96F7\u96FB"
   _explanation: "\u5FAE\u5F31\u306A\u96FB\u6D41\u304C\u6D41\u308C\u3066\u304A\u308A\u3001\\n\u84C4\u7A4D\u3055\u305B\u308B\u3053\u3068\u3067<b><color=#FF0000>\u30B9\u30BF\u30F3\u52B9\u679C</color></b>\u3092\u4E0E\u3048\u308B\u3002"
-  _image: {fileID: 21300000, guid: 3353b2bc7fc18c440af7e113866f747c, type: 3}
+  _image: {fileID: 21300000, guid: f194f093d946f704c84210ad57ff6364, type: 3}

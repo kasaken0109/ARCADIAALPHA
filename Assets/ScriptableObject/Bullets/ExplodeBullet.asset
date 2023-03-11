@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
   m_Name: ExplodeBullet
   m_EditorClassIdentifier: 
-  _isUnlock: 0
+  _isUnlock: 1
   _requirePointToUnlock: 1
   m_bullet: {fileID: 8289241599597392337, guid: 215cad6ced19788479284a4f096d53fa, type: 3}
-  m_damage: 100
+  m_damage: 180
   _attackDuraration: 0
   _isPermanence: 0
-  m_delay: 5
-  m_consumeStanceValue: 0.3
+  m_delay: 3
+  m_consumeStanceValue: 0.5
   _bulletCustomType: 4
-  passiveSkill: {fileID: 11400000, guid: 4ac92cdb58de9ff45b6d373da808b99b, type: 2}
+  passiveSkill: {fileID: 0}
   m_bulletType: 1
   _passiveAction:
     id: 0

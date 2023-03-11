@@ -16,11 +16,15 @@ MonoBehaviour:
     id: 0
   consumeCost: 0
   skillType: 1
-  explainText: "\u4E00\u5B9A\u6642\u9593\u6575\u306E\u884C\u52D5\u3092\u9045\u304F\u3059\u308B"
+  explainText: "\u6575\u306E\u884C\u52D5\u3092\u9045\u304F\u3059\u308B"
   skillName: "\u6575\u30B9\u30D4\u30FC\u30C9\u30C0\u30A6\u30F3"
   image: {fileID: 21300000, guid: 74f5b0fd7a14b9c40b42c62145aeb46f, type: 3}
+  questImage: {fileID: 21300000, guid: a6f956336160f51459a28ba4fc82d771, type: 3}
   m_effect: {fileID: 0}
   references:
     version: 1
     00000000:
-      type: {class: , ns: , asm: }
+      type: {class: AddSlowDown, ns: , asm: Assembly-CSharp}
+      data:
+        _slowRate: 0.5
+        _duraration: 4

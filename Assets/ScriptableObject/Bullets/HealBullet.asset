@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
   m_Name: HealBullet
   m_EditorClassIdentifier: 
-  _isUnlock: 0
+  _isUnlock: 1
   _requirePointToUnlock: 1
   m_bullet: {fileID: 0}
   m_damage: 0
-  _attackDuraration: 0
-  _isPermanence: 0
-  m_delay: 0.2
+  _attackDuraration: 2
+  _isPermanence: 1
+  m_delay: 0.3
   m_consumeStanceValue: 0.2
   _bulletCustomType: 1
-  passiveSkill: {fileID: 11400000, guid: 4952114d35d013f43b9e9e5b9c3afe0b, type: 2}
+  passiveSkill: {fileID: 0}
   m_bulletType: 2
   _passiveAction:
     id: 0

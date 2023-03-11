@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 361513c081135794ca2f405d2d740fb0, type: 3}
   m_Name: MiddleStance
   m_EditorClassIdentifier: 
-  m_movingSpeed: 10
+  m_movingSpeed: 8
   m_runningCorrection: 1.6
-  m_turnSpeed: 8
+  m_turnSpeed: 12
   m_jumpPower: 2
   m_floatPower: 0.1
   m_midairSpeedRate: 0.7
   m_midairConsumeRate: -0.003
   m_dushPower: 6
   m_dushAttackPower: 15
-  m_dodgeLength: 7
+  m_dodgeLength: 4
   m_dodgeCoolDown: 1.5
   m_anim: {fileID: 9100000, guid: f39771aa59204e84488b661d603be6cd, type: 2}

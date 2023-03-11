@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6b7f72a8e42d94d8f5584c935fb32d, type: 3}
   m_Name: NormalBullet
   m_EditorClassIdentifier: 
-  _isUnlock: 0
+  _isUnlock: 1
   _requirePointToUnlock: 1
   m_bullet: {fileID: 1354823903795634764, guid: 0c8239e19677a0b4d8c01323797725c1, type: 3}
-  m_damage: 50
+  m_damage: 10
   _attackDuraration: 0
   _isPermanence: 0
   m_delay: 0.1
   m_consumeStanceValue: 0.03
   _bulletCustomType: 4
-  passiveSkill: {fileID: 11400000, guid: 8866e9d0629a97b458ae023da8c6d9f1, type: 2}
+  passiveSkill: {fileID: 11400000, guid: 9fbb771b7afa6b045add1a7154e43f7f, type: 2}
   m_bulletType: 0
   _passiveAction:
     id: 0

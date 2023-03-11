@@ -21,7 +21,7 @@ MonoBehaviour:
   m_delay: 0.2
   m_consumeStanceValue: 0.3
   _bulletCustomType: 1
-  passiveSkill: {fileID: 0}
+  passiveSkill: {fileID: 11400000, guid: 8866e9d0629a97b458ae023da8c6d9f1, type: 2}
   m_bulletType: 2
   _passiveAction:
     id: 0
@@ -36,5 +36,5 @@ MonoBehaviour:
     00000000:
       type: {class: PlayerAttackUp, ns: , asm: Assembly-CSharp}
       data:
-        _attackUp: 1.2
+        _attackUp: 1.5
         _effectiveTime: 5

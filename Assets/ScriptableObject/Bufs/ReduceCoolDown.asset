@@ -16,9 +16,10 @@ MonoBehaviour:
     id: 0
   consumeCost: 0
   skillType: 0
-  explainText: "\u767A\u5C04\u5F8C\u306E\u30AF\u30FC\u30EB\u30C0\u30A6\u30F3\u3092\u6E1B\u5C11\u3055\u305B\u308B"
+  explainText: "\u5F3E\u304C\u65E9\u304F\u518D\u4F7F\u7528\u51FA\u6765\u308B"
   skillName: "\u9023\u5C04\u901F\u5EA6\u30A2\u30C3\u30D7"
   image: {fileID: 21300000, guid: c5548a3951323ed47908e9926a3e1a41, type: 3}
+  questImage: {fileID: 21300000, guid: ee5dc47fb0558f1479a8716586cbbf05, type: 3}
   m_effect: {fileID: 0}
   references:
     version: 1

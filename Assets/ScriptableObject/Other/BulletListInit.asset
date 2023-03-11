@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BulletListInit
   m_EditorClassIdentifier: 
   _bullets:
+  - {fileID: 11400000, guid: e0b1b496715838c408584c62a667d949, type: 2}
+  - {fileID: 11400000, guid: 9f19ceed6227d2043ae50f895454c953, type: 2}
   - {fileID: 11400000, guid: d4714065fafce514c87df74d3690f05a, type: 2}
-  - {fileID: 11400000, guid: a24b696d9166b9b4ea238ff8b78886e7, type: 2}
-  - {fileID: 11400000, guid: 811f8a1c0d9323e4a9ad9be3c094b2af, type: 2}
