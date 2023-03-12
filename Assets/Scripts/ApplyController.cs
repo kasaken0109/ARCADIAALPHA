@@ -27,6 +27,8 @@ public class ApplyController : MonoBehaviour
 
     public void InitApplication()
     {
+        PlayerPrefs.SetFloat("CameraX", 1);
+        PlayerPrefs.SetFloat("CameraY", 1);
         PlayerPrefs.SetInt("IsFirst", 0);
         PlayerPrefs.Save();
         for (int i = 0; i < bullets.Length; i++)
