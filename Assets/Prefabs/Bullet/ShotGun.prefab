@@ -29,7 +29,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
-  - {fileID: 8737799514076501190}
+  - {fileID: 4753419312776300445}
   - {fileID: 6352186533522099287}
   - {fileID: 8954697665647005380}
   m_Father: {fileID: 0}
@@ -52,7 +52,7 @@ MonoBehaviour:
   _layerMask:
     serializedVersion: 2
     m_Bits: 8
-  _hitSound: {fileID: 8300000, guid: 202b951c1661d6e4589f332b48beaff3, type: 3}
+  _hitSound: {fileID: 8300000, guid: c29690cdce4de3249801032bc66edff8, type: 3}
   _effect: {fileID: 7744602051578117055, guid: da965a11411529240a783da3988d3c99, type: 3}
   _frostEffect: {fileID: 0}
   _bulletSetting: {fileID: 11400000, guid: e8ef31db546f36e46af88035502fd582, type: 2}
@@ -9830,6 +9830,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1354823903795634765}
     m_Modifications:
+    - target: {fileID: 5204276272139869805, guid: a912b06d12f83a142bc563ad68583a4b, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8109894691228159280, guid: a912b06d12f83a142bc563ad68583a4b, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -9884,9 +9888,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a912b06d12f83a142bc563ad68583a4b, type: 3}
---- !u!4 &8737799514076501190 stripped
+--- !u!4 &4753419312776300445 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 8109894691228159280, guid: a912b06d12f83a142bc563ad68583a4b, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5204276272139869803, guid: a912b06d12f83a142bc563ad68583a4b, type: 3}
   m_PrefabInstance: {fileID: 706717816474524150}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &850142947178518889

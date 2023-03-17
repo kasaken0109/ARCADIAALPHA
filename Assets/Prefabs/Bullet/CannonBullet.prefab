@@ -62,6 +62,7 @@ MonoBehaviour:
   m_bulletSpeed: 20
   _effect: {fileID: 6105105234082694942, guid: f82bbe694cf41fd43893a81ddb8e6df5, type: 3}
   _unHitEffect: {fileID: 5937012291382834360, guid: ffb67794eda5e2b4f9bb1edcf492c19b, type: 3}
+  _hitSound: {fileID: 8300000, guid: bfda03f48a5d9fd41a5d2e70af4646a5, type: 3}
 --- !u!54 &2527243059222272986
 Rigidbody:
   m_ObjectHideFlags: 0

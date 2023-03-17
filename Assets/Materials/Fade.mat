@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Fade
-  m_Shader: {fileID: 4800000, guid: 8ee75a2e939ec3745814d976fe79e367, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: cd519aab94611bc4d98296967dce5e79, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_8d6a47a45ad74bfda582e0cdf7b5f891:
+        m_Texture: {fileID: 2800000, guid: 10ab207545ea4fd4f8176df32863089a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -43,6 +47,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MainTexture:
+        m_Texture: {fileID: 2800000, guid: 97692135dff4aae49aca768c3c560189, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,7 +63,38 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_0f3d3811c8f5459b889f1748bd6f3029_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 97692135dff4aae49aca768c3c560189, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_46871df5e5ed4c198a500d526c7e2ee2_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 10ab207545ea4fd4f8176df32863089a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_96d6144cec08415e9815b00564a13ec8_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 97692135dff4aae49aca768c3c560189, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_ee5d79e54ef74670bcc784a5e22019ff_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 97692135dff4aae49aca768c3c560189, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
+    - Boolean_febae1a1614148e3bcd23d7b789a5854: 0
+    - Vector1_df49544f5f1146f1b4c3ac06eac0d382: 0
+    - Vector1_ec6864ea171a4094982427c9573a19e5: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -70,6 +109,8 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Threshold: 0.00000011920929
+    - _TimeScale: 0.6211261
     - _TransScale: 0.1
     - _UVSec: 0
     - _ZWrite: 1

@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a518e4cfe1eabde4e82f31da766f4c29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shootRange: 20
+  _shootRange: 200
   _speed: 0
   _layerMask:
     serializedVersion: 2
@@ -54,7 +54,7 @@ MonoBehaviour:
   _hitSound: {fileID: 8300000, guid: 202b951c1661d6e4589f332b48beaff3, type: 3}
   _effect: {fileID: 4903890066885015849, guid: 90beaa5daf9930d47884fb858729e28f, type: 3}
   _frostEffect: {fileID: 0}
-  _bulletSetting: {fileID: 11400000, guid: 344affc548ee5984b87697ffbe813bbd, type: 2}
+  _bulletSetting: {fileID: 11400000, guid: 97ca442347348a246bb063f6a89b8e1f, type: 2}
 --- !u!54 &2319046592579498607
 Rigidbody:
   m_ObjectHideFlags: 0
